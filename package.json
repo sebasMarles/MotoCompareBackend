@@ -1,0 +1,28 @@
+{
+  "name": "motocompare-backend",
+  "version": "1.0.0",
+  "description": "Backend de MotoCompare (Ingeniería de Software 2)",
+  "main": "dist/src/main.js",
+  "scripts": {
+    "db:up": "docker compose up -d",
+    "db:down": "docker compose down",
+    "db:migrate": "prisma migrate dev",
+    "db:studio": "prisma studio",
+    "verificar": "tsx --env-file=.env scripts/verificar-persistencia.ts",
+    "arquitectura": "! grep -rn infraestructura src/dominio src/aplicacion",
+    "postinstall": "prisma generate"
+  },
+  "type": "commonjs",
+  "devDependencies": {
+    "@types/node": "^26.3.0",
+    "prisma": "^7.10.0",
+    "tsx": "^4.23.12",
+    "typescript": "^7.0.2",
+    "vitest": "^4.1.11"
+  },
+  "dependencies": {
+    "@prisma/adapter-pg": "^7.10.0",
+    "@prisma/client": "^7.10.0",
+    "dotenv": "^17.4.2"
+  }
+}

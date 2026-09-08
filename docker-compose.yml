@@ -1,0 +1,20 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: motocompare-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: motocompare
+      POSTGRES_PASSWORD: motocompare
+      POSTGRES_DB: motocompare
+    ports:
+      - "5889:5432"
+    volumes:
+      - datos-postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U motocompare -d motocompare"]
+      interval: 5s
+      retries: 10
+
+volumes:
+  datos-postgres:

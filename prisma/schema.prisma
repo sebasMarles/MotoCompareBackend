@@ -1,0 +1,34 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/infraestructura/persistencia/generado"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Usuario {
+  id        String   @id @default(uuid())
+  nombre    String
+  correo    String   @unique
+  claveHash String
+  activo    Boolean  @default(true)
+  creadoEn  DateTime @default(now())
+}
+
+model Moto {
+  id          String @id @default(uuid())
+  marca       String
+  modelo      String
+  anio        Int
+  categoria   String
+  cilindrada  Int
+  potencia    Float
+  torque      Float
+  precio      Int
+  imagen      String
+  descripcion String
+
+  @@index([marca])
+  @@index([categoria])
+}
