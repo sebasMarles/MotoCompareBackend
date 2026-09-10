@@ -1,0 +1,60 @@
+import { Router } from 'express'
+import type { Request, Response } from 'express'
+import { esTipoMantenimiento } from '../../../dominio/modelo/RegistroMantenimiento'
+import { GarageNoEncontrado } from '../../../aplicacion/casos-uso/soporte-garage'
+import type { RegistrarMantenimiento } from '../../../aplicacion/casos-uso/RegistrarMantenimiento'
+import type { ListarMantenimientos } from '../../../aplicacion/casos-uso/ListarMantenimientos'
+import type { ServicioTokens } from '../../../dominio/puertos'
+import { requiereSesion } from '../middleware/autenticacion'
+
+export interface DependenciasMantenimiento {
+  tokens: ServicioTokens
+  registrarMantenimiento: RegistrarMantenimiento
+  listarMantenimientos: ListarMantenimientos
+}
+
+// Se monta en el servidor bajo /garage/:motoGuardadaId/mantenimientos (mergeParams
+// es lo que permite leer :motoGuardadaId aquí, aunque el parámetro lo declara el padre).
+export function rutasMantenimiento(deps: DependenciasMantenimiento): Router {
+  const router = Router({ mergeParams: true })
+  router.use(requiereSesion(deps.tokens))
+
+  router.get('/', async (req: Request, res: Response) => {
+    try {
+      res.json(await deps.listarMantenimientos.ejecutar(req.usuarioId!, req.params.motoGuardadaId))
+    } catch (error) {
+      if (error instanceof GarageNoEncontrado) {
+        res.status(404).json({ error: error.message })
+        return
+      }
+      throw error
+    }
+  })
+
+  router.post('/', async (req: Request, res: Response) => {
+    const { tipo, fecha, kilometraje, costo, notas } = req.body ?? {}
+    if (!esTipoMantenimiento(tipo) || typeof kilometraje !== 'number' || typeof costo !== 'number') {
+      res.status(400).json({ error: 'tipo, kilometraje y costo son obligatorios y deben tener el formato correcto' })
+      return
+    }
+    try {
+      const registro = await deps.registrarMantenimiento.ejecutar(req.usuarioId!, {
+        motoGuardadaId: req.params.motoGuardadaId,
+        tipo,
+        fecha: fecha ? new Date(fecha) : new Date(),
+        kilometraje,
+        costo,
+        notas,
+      })
+      res.status(201).json(registro)
+    } catch (error) {
+      if (error instanceof GarageNoEncontrado) {
+        res.status(404).json({ error: error.message })
+        return
+      }
+      throw error
+    }
+  })
+
+  return router
+}
