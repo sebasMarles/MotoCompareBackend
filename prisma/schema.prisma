@@ -112,3 +112,11 @@ model ComparacionRecomendada {
   motoB   Moto   @relation("MotoB", fields: [motoBId], references: [id])
   motoBId String
 }
+
+// Tokens JWT invalidados antes de su expiración natural (cierre de sesión real).
+// El JWT en sí es stateless; esta tabla es lo que lo hace revocable server-side.
+model SesionRevocada {
+  jti        String   @id
+  expiraEn   DateTime
+  revocadaEn DateTime @default(now())
+}
