@@ -4,15 +4,19 @@ import { CorreoYaRegistrado } from '../../../aplicacion/casos-uso/RegistrarUsuar
 import type { RegistrarUsuario } from '../../../aplicacion/casos-uso/RegistrarUsuario'
 import { CredencialesInvalidas } from '../../../aplicacion/casos-uso/IniciarSesion'
 import type { IniciarSesion } from '../../../aplicacion/casos-uso/IniciarSesion'
+import type { CerrarSesion } from '../../../aplicacion/casos-uso/CerrarSesion'
 import { aUsuarioDTO } from '../../../dominio/modelo/Usuario'
-import type { ServicioTokens, UsuarioDAO } from '../../../dominio/puertos'
+import type { SesionesDAO, ServicioTokens, UsuarioDAO } from '../../../dominio/puertos'
 import { requiereSesion } from '../middleware/autenticacion'
+import { correoValido, claveValida, nombreValido } from '../validacion'
 
 export interface DependenciasAutenticacion {
   usuarios: UsuarioDAO
   tokens: ServicioTokens
+  sesiones: SesionesDAO
   registrarUsuario: RegistrarUsuario
   iniciarSesion: IniciarSesion
+  cerrarSesion: CerrarSesion
 }
 
 export function rutasAutenticacion(deps: DependenciasAutenticacion): Router {
@@ -22,6 +26,18 @@ export function rutasAutenticacion(deps: DependenciasAutenticacion): Router {
     const { nombre, correo, clave } = req.body ?? {}
     if (typeof nombre !== 'string' || typeof correo !== 'string' || typeof clave !== 'string') {
       res.status(400).json({ error: 'nombre, correo y clave son obligatorios' })
+      return
+    }
+    if (!nombreValido(nombre)) {
+      res.status(400).json({ error: 'El nombre debe tener al menos 2 caracteres' })
+      return
+    }
+    if (!correoValido(correo)) {
+      res.status(400).json({ error: 'El correo no tiene un formato válido' })
+      return
+    }
+    if (!claveValida(clave)) {
+      res.status(400).json({ error: 'La clave debe tener al menos 8 caracteres' })
       return
     }
     try {
@@ -54,13 +70,18 @@ export function rutasAutenticacion(deps: DependenciasAutenticacion): Router {
     }
   })
 
-  router.get('/perfil', requiereSesion(deps.tokens), async (req: Request, res: Response) => {
+  router.get('/perfil', requiereSesion(deps.tokens, deps.sesiones), async (req: Request, res: Response) => {
     const usuario = await deps.usuarios.porId(req.usuarioId!)
     if (!usuario) {
       res.status(404).json({ error: 'Usuario no encontrado' })
       return
     }
     res.json(aUsuarioDTO(usuario))
+  })
+
+  router.post('/logout', requiereSesion(deps.tokens, deps.sesiones), async (req: Request, res: Response) => {
+    await deps.cerrarSesion.ejecutar(req.sesionJti!, req.sesionExpiraEn!)
+    res.status(204).send()
   })
 
   return router

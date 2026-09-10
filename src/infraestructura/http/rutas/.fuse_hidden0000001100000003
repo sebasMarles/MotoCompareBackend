@@ -9,7 +9,6 @@ import { requiereSesion } from '../middleware/autenticacion'
 
 export interface DependenciasCostos {
   tokens: ServicioTokens
-  sesiones: SesionesDAO
   configurarCostoMensual: ConfigurarCostoMensual
   listarCostosMensuales: ListarCostosMensuales
 }

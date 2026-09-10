@@ -55,12 +55,21 @@ export interface ServicioClaves {
   coincide(clave: string, hash: string): Promise<boolean>
 }
 
-/** Contenido útil del token: viaja entre el cliente y el servidor en cada petición. */
+/** Contenido útil del token: viaja entre el cliente y el servidor en cada petición.
+ *  `jti` identifica esta sesión concreta (para poder revocarla); `exp`, cuándo expira. */
 export interface CredencialDTO {
   id: string
+  jti: string
+  exp: Date
 }
 
 export interface ServicioTokens {
-  emitir(credencial: CredencialDTO): string
+  emitir(usuarioId: string): string
   verificar(token: string): CredencialDTO | null
+}
+
+/** Sesiones (tokens) cerradas antes de su expiración natural — el mecanismo de "logout" real. */
+export interface SesionesDAO {
+  revocar(jti: string, expiraEn: Date): Promise<void>
+  estaRevocada(jti: string): Promise<boolean>
 }

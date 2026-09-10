@@ -28,7 +28,7 @@ export class IniciarSesion {
     if (!(await this.claves.coincide(clave, usuario.claveHash))) throw new CredencialesInvalidas()
 
     return {
-      token: this.tokens.emitir({ id: usuario.id }),
+      token: this.tokens.emitir(usuario.id),
       usuario: aUsuarioDTO(usuario),
     }
   }

@@ -9,7 +9,6 @@ import { requiereSesion } from '../middleware/autenticacion'
 
 export interface DependenciasMantenimiento {
   tokens: ServicioTokens
-  sesiones: SesionesDAO
   registrarMantenimiento: RegistrarMantenimiento
   listarMantenimientos: ListarMantenimientos
 }

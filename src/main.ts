@@ -2,6 +2,7 @@
 // de implementaciones concretas.
 import { RegistrarUsuario } from './aplicacion/casos-uso/RegistrarUsuario'
 import { IniciarSesion } from './aplicacion/casos-uso/IniciarSesion'
+import { CerrarSesion } from './aplicacion/casos-uso/CerrarSesion'
 import { ListarMotos } from './aplicacion/casos-uso/ListarMotos'
 import { ObtenerMotoPorId } from './aplicacion/casos-uso/ObtenerMotoPorId'
 import { AgregarMotoAlGarage } from './aplicacion/casos-uso/AgregarMotoAlGarage'
@@ -21,6 +22,7 @@ import { MotoGuardadaDAOPrisma } from './infraestructura/persistencia/MotoGuarda
 import { RegistroMantenimientoDAOPrisma } from './infraestructura/persistencia/RegistroMantenimientoDAOPrisma'
 import { CostoMensualDAOPrisma } from './infraestructura/persistencia/CostoMensualDAOPrisma'
 import { ComparacionRecomendadaDAOPrisma } from './infraestructura/persistencia/ComparacionRecomendadaDAOPrisma'
+import { SesionesDAOPrisma } from './infraestructura/persistencia/SesionesDAOPrisma'
 import { ClavesBcrypt } from './infraestructura/seguridad/ClavesBcrypt'
 import { TokensJwt } from './infraestructura/seguridad/TokensJwt'
 import { crearServidor } from './infraestructura/http/servidor'
@@ -35,6 +37,7 @@ const garage = new MotoGuardadaDAOPrisma(prisma)
 const mantenimientos = new RegistroMantenimientoDAOPrisma(prisma)
 const costos = new CostoMensualDAOPrisma(prisma)
 const comparaciones = new ComparacionRecomendadaDAOPrisma(prisma)
+const sesiones = new SesionesDAOPrisma(prisma)
 
 // Adaptadores de seguridad.
 const claves = new ClavesBcrypt()
@@ -44,8 +47,10 @@ const tokens = new TokensJwt(secreto)
 const app = crearServidor({
   usuarios,
   tokens,
+  sesiones,
   registrarUsuario: new RegistrarUsuario(usuarios, claves),
   iniciarSesion: new IniciarSesion(usuarios, claves, tokens),
+  cerrarSesion: new CerrarSesion(sesiones),
   listarMotos: new ListarMotos(motos),
   obtenerMotoPorId: new ObtenerMotoPorId(motos),
   listarComparacionesRecomendadas: new ListarComparacionesRecomendadas(comparaciones, motos),

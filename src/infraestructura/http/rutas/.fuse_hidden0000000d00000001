@@ -11,7 +11,6 @@ import { requiereSesion } from '../middleware/autenticacion'
 
 export interface DependenciasGarage {
   tokens: ServicioTokens
-  sesiones: SesionesDAO
   agregarMotoAlGarage: AgregarMotoAlGarage
   listarGarage: ListarGarage
   actualizarKilometraje: ActualizarKilometraje
