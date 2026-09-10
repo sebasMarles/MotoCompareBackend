@@ -8,12 +8,13 @@ datasource db {
 }
 
 model Usuario {
-  id        String   @id @default(uuid())
+  id        String         @id @default(uuid())
   nombre    String
-  correo    String   @unique
+  correo    String         @unique
   claveHash String
-  activo    Boolean  @default(true)
-  creadoEn  DateTime @default(now())
+  activo    Boolean        @default(true)
+  creadoEn  DateTime       @default(now())
+  garage    MotoGuardada[]
 }
 
 model Moto {
@@ -29,6 +30,85 @@ model Moto {
   imagen      String
   descripcion String
 
+  enGarages          MotoGuardada[]
+  comparacionesComoA ComparacionRecomendada[] @relation("MotoA")
+  comparacionesComoB ComparacionRecomendada[] @relation("MotoB")
+
   @@index([marca])
   @@index([categoria])
+}
+
+// Una moto que un usuario agregó a su garage. Es el puente entre Usuario y Moto,
+// y el punto de referencia para Mantenimiento y Costes de esa moto en particular.
+model MotoGuardada {
+  id                String   @id @default(uuid())
+  apodo             String?
+  kilometrajeActual Int      @default(0)
+  agregadaEn        DateTime @default(now())
+
+  usuario   Usuario @relation(fields: [usuarioId], references: [id])
+  usuarioId String
+  moto      Moto    @relation(fields: [motoId], references: [id])
+  motoId    String
+
+  mantenimientos RegistroMantenimiento[]
+  costos         CostoMensual[]
+
+  @@index([usuarioId])
+}
+
+enum TipoMantenimiento {
+  CAMBIO_ACEITE
+  PASTILLAS_FRENO
+  LLANTAS
+  REVISION_GENERAL
+  OTRO
+}
+
+model RegistroMantenimiento {
+  id          String            @id @default(uuid())
+  tipo        TipoMantenimiento
+  fecha       DateTime
+  kilometraje Int
+  costo       Int
+  notas       String?
+
+  motoGuardada   MotoGuardada @relation(fields: [motoGuardadaId], references: [id])
+  motoGuardadaId String
+
+  @@index([motoGuardadaId])
+}
+
+enum CategoriaCosto {
+  COMBUSTIBLE
+  SEGURO
+  REPUESTOS
+  OTRO
+}
+
+// Gastos configurables de una moto guardada (combustible, seguro, repuestos, otros),
+// con los que se calculan el total mensual y el salario ideal.
+model CostoMensual {
+  id          String         @id @default(uuid())
+  categoria   CategoriaCosto
+  descripcion String?
+  monto       Int
+
+  motoGuardada   MotoGuardada @relation(fields: [motoGuardadaId], references: [id])
+  motoGuardadaId String
+
+  @@index([motoGuardadaId])
+}
+
+// Comparaciones destacadas del catálogo (ej. "Yamaha MT-07 vs Kawasaki Z650"),
+// sin relación a Usuario — son contenido curado, no datos de un usuario.
+model ComparacionRecomendada {
+  id        String  @id @default(uuid())
+  titulo    String
+  destacada Boolean @default(true)
+
+  motoA   Moto   @relation("MotoA", fields: [motoAId], references: [id])
+  motoAId String
+  motoB   Moto   @relation("MotoB", fields: [motoBId], references: [id])
+  motoBId String
 }
