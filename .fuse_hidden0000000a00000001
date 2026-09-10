@@ -14,7 +14,6 @@
     "db:studio": "prisma studio",
     "db:seed": "tsx --env-file=.env prisma/seed.ts",
     "verificar": "tsx --env-file=.env scripts/verificar-persistencia.ts",
-    "verificar:auth": "tsx --env-file=.env scripts/verificar-autenticacion.ts",
     "arquitectura": "! grep -rn infraestructura src/dominio src/aplicacion",
     "postinstall": "prisma generate"
   },
