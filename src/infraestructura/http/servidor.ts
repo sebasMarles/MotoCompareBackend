@@ -1,3 +1,4 @@
+import cors from 'cors'
 import express, { Router } from 'express'
 import type { ErrorRequestHandler, Express } from 'express'
 import { rutasAutenticacion } from './rutas/autenticacion'
@@ -17,6 +18,11 @@ export type DependenciasServidor = DependenciasAutenticacion &
   DependenciasMantenimiento &
   DependenciasCostos
 
+// Origen permitido para llamadas cross-origin (el frontend Angular corre en un
+// puerto distinto al del backend). Configurable por si el frontend corre en
+// otro puerto o dominio; por defecto, el puerto de `ng serve`.
+const origenFrontend = process.env['FRONTEND_ORIGIN'] ?? 'http://localhost:4200'
+
 const errores: ErrorRequestHandler = (error, _req, res, _next) => {
   console.error(error)
   res.status(500).json({ error: 'Error interno' })
@@ -32,6 +38,7 @@ export function crearServidor(deps: DependenciasServidor): Express {
   api.use('/garage/:motoGuardadaId/costos', rutasCostos(deps))
 
   const app = express()
+  app.use(cors({ origin: origenFrontend }))
   app.use(express.json())
   app.use('/api', api)
   app.use((_req, res) => void res.status(404).json({ error: 'Ruta no encontrada' }))
