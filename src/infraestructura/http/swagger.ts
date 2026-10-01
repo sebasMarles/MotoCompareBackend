@@ -11,28 +11,55 @@ const definition = {
     version: '1.0.0',
     description: `API REST de MotoCompareBackend: catálogo de motos, autenticación y Mi Garage (motos guardadas, mantenimiento y costos mensuales).
 
+Todas, salvo /salud, /auth/registro, /auth/login, /motos, /motos/comparaciones-recomendadas y /motos/{id}, requieren el header \`Authorization: Bearer <token>\` (botón "Authorize" arriba).
+
 ### Rutas disponibles
 
-| Método | Ruta |
-| --- | --- |
-| GET | /salud |
-| POST | /auth/registro |
-| POST | /auth/login |
-| GET | /auth/perfil |
-| POST | /auth/logout |
-| GET | /motos |
-| GET | /motos/comparaciones-recomendadas |
-| GET | /motos/{id} |
-| GET | /garage |
-| POST | /garage |
-| PATCH | /garage/{id}/kilometraje |
-| DELETE | /garage/{id} |
-| GET | /garage/{motoGuardadaId}/mantenimientos |
-| POST | /garage/{motoGuardadaId}/mantenimientos |
-| GET | /garage/{motoGuardadaId}/costos |
-| POST | /garage/{motoGuardadaId}/costos |
+#### Sistema
 
-Todas, salvo /salud, /auth/registro, /auth/login, /motos, /motos/comparaciones-recomendadas y /motos/{id}, requieren el header \`Authorization: Bearer <token>\` (botón "Authorize" arriba).`,
+| Verbo | Ruta |
+| --- | --- |
+| <span style="background:#61affe;color:#fff;padding:2px 10px;border-radius:3px;font-weight:bold;font-size:12px;">GET</span> | \`/salud\` |
+
+#### Auth (\`/auth\`)
+
+| Verbo | Ruta |
+| --- | --- |
+| <span style="background:#49cc90;color:#fff;padding:2px 10px;border-radius:3px;font-weight:bold;font-size:12px;">POST</span> | \`/auth/registro\` |
+| <span style="background:#49cc90;color:#fff;padding:2px 10px;border-radius:3px;font-weight:bold;font-size:12px;">POST</span> | \`/auth/login\` |
+| <span style="background:#61affe;color:#fff;padding:2px 10px;border-radius:3px;font-weight:bold;font-size:12px;">GET</span> | \`/auth/perfil\` |
+| <span style="background:#49cc90;color:#fff;padding:2px 10px;border-radius:3px;font-weight:bold;font-size:12px;">POST</span> | \`/auth/logout\` |
+
+#### Motos (\`/motos\`)
+
+| Verbo | Ruta |
+| --- | --- |
+| <span style="background:#61affe;color:#fff;padding:2px 10px;border-radius:3px;font-weight:bold;font-size:12px;">GET</span> | \`/motos\` |
+| <span style="background:#61affe;color:#fff;padding:2px 10px;border-radius:3px;font-weight:bold;font-size:12px;">GET</span> | \`/motos/comparaciones-recomendadas\` |
+| <span style="background:#61affe;color:#fff;padding:2px 10px;border-radius:3px;font-weight:bold;font-size:12px;">GET</span> | \`/motos/{id}\` |
+
+#### Garage (\`/garage\`)
+
+| Verbo | Ruta |
+| --- | --- |
+| <span style="background:#61affe;color:#fff;padding:2px 10px;border-radius:3px;font-weight:bold;font-size:12px;">GET</span> | \`/garage\` |
+| <span style="background:#49cc90;color:#fff;padding:2px 10px;border-radius:3px;font-weight:bold;font-size:12px;">POST</span> | \`/garage\` |
+| <span style="background:#50e3c2;color:#3b4151;padding:2px 10px;border-radius:3px;font-weight:bold;font-size:12px;">PATCH</span> | \`/garage/{id}/kilometraje\` |
+| <span style="background:#f93e3e;color:#fff;padding:2px 10px;border-radius:3px;font-weight:bold;font-size:12px;">DELETE</span> | \`/garage/{id}\` |
+
+#### Mantenimiento (\`/garage/{motoGuardadaId}/mantenimientos\`)
+
+| Verbo | Ruta |
+| --- | --- |
+| <span style="background:#61affe;color:#fff;padding:2px 10px;border-radius:3px;font-weight:bold;font-size:12px;">GET</span> | \`/garage/{motoGuardadaId}/mantenimientos\` |
+| <span style="background:#49cc90;color:#fff;padding:2px 10px;border-radius:3px;font-weight:bold;font-size:12px;">POST</span> | \`/garage/{motoGuardadaId}/mantenimientos\` |
+
+#### Costos (\`/garage/{motoGuardadaId}/costos\`)
+
+| Verbo | Ruta |
+| --- | --- |
+| <span style="background:#61affe;color:#fff;padding:2px 10px;border-radius:3px;font-weight:bold;font-size:12px;">GET</span> | \`/garage/{motoGuardadaId}/costos\` |
+| <span style="background:#49cc90;color:#fff;padding:2px 10px;border-radius:3px;font-weight:bold;font-size:12px;">POST</span> | \`/garage/{motoGuardadaId}/costos\` |`,
   },
   servers: [{ url: '/api', description: 'Servidor actual' }],
   components: {
