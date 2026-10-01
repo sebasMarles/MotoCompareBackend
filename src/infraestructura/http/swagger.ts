@@ -9,8 +9,30 @@ const definition = {
   info: {
     title: 'MotoCompare API',
     version: '1.0.0',
-    description:
-      'API REST de MotoCompareBackend: catálogo de motos, autenticación y Mi Garage (motos guardadas, mantenimiento y costos mensuales).',
+    description: `API REST de MotoCompareBackend: catálogo de motos, autenticación y Mi Garage (motos guardadas, mantenimiento y costos mensuales).
+
+### Rutas disponibles
+
+| Método | Ruta |
+| --- | --- |
+| GET | /salud |
+| POST | /auth/registro |
+| POST | /auth/login |
+| GET | /auth/perfil |
+| POST | /auth/logout |
+| GET | /motos |
+| GET | /motos/comparaciones-recomendadas |
+| GET | /motos/{id} |
+| GET | /garage |
+| POST | /garage |
+| PATCH | /garage/{id}/kilometraje |
+| DELETE | /garage/{id} |
+| GET | /garage/{motoGuardadaId}/mantenimientos |
+| POST | /garage/{motoGuardadaId}/mantenimientos |
+| GET | /garage/{motoGuardadaId}/costos |
+| POST | /garage/{motoGuardadaId}/costos |
+
+Todas, salvo /salud, /auth/registro, /auth/login, /motos, /motos/comparaciones-recomendadas y /motos/{id}, requieren el header \`Authorization: Bearer <token>\` (botón "Authorize" arriba).`,
   },
   servers: [{ url: '/api', description: 'Servidor actual' }],
   components: {
@@ -182,7 +204,13 @@ const options = {
   definition,
   // Dos extensiones porque `npm run dev` corre los .ts directo con tsx,
   // pero `npm run build` + `npm start` corren los .js ya compilados en dist/.
-  apis: [path.join(__dirname, 'rutas', '*.ts'), path.join(__dirname, 'rutas', '*.js')],
+  // servidor.ts entra también, porque ahí vive la ruta /salud.
+  apis: [
+    path.join(__dirname, 'rutas', '*.ts'),
+    path.join(__dirname, 'rutas', '*.js'),
+    path.join(__dirname, 'servidor.ts'),
+    path.join(__dirname, 'servidor.js'),
+  ],
 }
 
 export const swaggerSpec = swaggerJsdoc(options)

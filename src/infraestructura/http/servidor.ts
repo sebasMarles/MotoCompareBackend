@@ -32,6 +32,23 @@ const errores: ErrorRequestHandler = (error, _req, res, _next) => {
 
 export function crearServidor(deps: DependenciasServidor): Express {
   const api = Router()
+
+  /**
+   * @openapi
+   * /api/salud:
+   *   get:
+   *     tags: [Sistema]
+   *     summary: Comprueba que el servidor esté arriba
+   *     responses:
+   *       200:
+   *         description: El servidor responde
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 estado: { type: string, example: 'ok' }
+   */
   api.get('/salud', (_req, res) => void res.json({ estado: 'ok' }))
   api.use('/auth', rutasAutenticacion(deps))
   api.use('/motos', rutasMotos(deps))
