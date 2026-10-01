@@ -1,6 +1,8 @@
 import cors from 'cors'
 import express, { Router } from 'express'
 import type { ErrorRequestHandler, Express } from 'express'
+import swaggerUi from 'swagger-ui-express'
+import { swaggerSpec } from './swagger'
 import { rutasAutenticacion } from './rutas/autenticacion'
 import type { DependenciasAutenticacion } from './rutas/autenticacion'
 import { rutasMotos } from './rutas/motos'
@@ -41,6 +43,9 @@ export function crearServidor(deps: DependenciasServidor): Express {
   app.use(cors({ origin: origenFrontend }))
   app.use(express.json())
   app.use('/api', api)
+  // Documentación interactiva de la API (Swagger UI), armada a partir de los
+  // comentarios @openapi en infraestructura/http/rutas/*.ts.
+  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
   app.use((_req, res) => void res.status(404).json({ error: 'Ruta no encontrada' }))
   app.use(errores)
   return app

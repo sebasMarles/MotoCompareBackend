@@ -22,6 +22,38 @@ export interface DependenciasAutenticacion {
 export function rutasAutenticacion(deps: DependenciasAutenticacion): Router {
   const router = Router()
 
+  /**
+   * @openapi
+   * /api/auth/registro:
+   *   post:
+   *     tags: [Autenticación]
+   *     summary: Registra un usuario nuevo
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/RegistroInput'
+   *     responses:
+   *       201:
+   *         description: Usuario creado
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Usuario'
+   *       400:
+   *         description: Datos inválidos
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Error'
+   *       409:
+   *         description: El correo ya está registrado
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Error'
+   */
   router.post('/registro', async (req: Request, res: Response) => {
     const { nombre, correo, clave } = req.body ?? {}
     if (typeof nombre !== 'string' || typeof correo !== 'string' || typeof clave !== 'string') {
@@ -52,6 +84,38 @@ export function rutasAutenticacion(deps: DependenciasAutenticacion): Router {
     }
   })
 
+  /**
+   * @openapi
+   * /api/auth/login:
+   *   post:
+   *     tags: [Autenticación]
+   *     summary: Inicia sesión y devuelve un token JWT
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/LoginInput'
+   *     responses:
+   *       200:
+   *         description: Sesión iniciada
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/SesionDTO'
+   *       400:
+   *         description: correo y clave son obligatorios
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Error'
+   *       401:
+   *         description: Correo o clave incorrectos
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Error'
+   */
   router.post('/login', async (req: Request, res: Response) => {
     const { correo, clave } = req.body ?? {}
     if (typeof correo !== 'string' || typeof clave !== 'string') {
@@ -70,6 +134,34 @@ export function rutasAutenticacion(deps: DependenciasAutenticacion): Router {
     }
   })
 
+  /**
+   * @openapi
+   * /api/auth/perfil:
+   *   get:
+   *     tags: [Autenticación]
+   *     summary: Devuelve el usuario autenticado
+   *     security:
+   *       - bearerAuth: []
+   *     responses:
+   *       200:
+   *         description: Usuario autenticado
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Usuario'
+   *       401:
+   *         description: Se requiere iniciar sesión
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Error'
+   *       404:
+   *         description: Usuario no encontrado
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Error'
+   */
   router.get('/perfil', requiereSesion(deps.tokens, deps.sesiones), async (req: Request, res: Response) => {
     const usuario = await deps.usuarios.porId(req.usuarioId!)
     if (!usuario) {
@@ -79,6 +171,24 @@ export function rutasAutenticacion(deps: DependenciasAutenticacion): Router {
     res.json(aUsuarioDTO(usuario))
   })
 
+  /**
+   * @openapi
+   * /api/auth/logout:
+   *   post:
+   *     tags: [Autenticación]
+   *     summary: Cierra la sesión actual (revoca el token)
+   *     security:
+   *       - bearerAuth: []
+   *     responses:
+   *       204:
+   *         description: Sesión cerrada
+   *       401:
+   *         description: Se requiere iniciar sesión
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Error'
+   */
   router.post('/logout', requiereSesion(deps.tokens, deps.sesiones), async (req: Request, res: Response) => {
     await deps.cerrarSesion.ejecutar(req.sesionJti!, req.sesionExpiraEn!)
     res.status(204).send()

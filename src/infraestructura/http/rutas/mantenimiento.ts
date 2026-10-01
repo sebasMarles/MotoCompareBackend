@@ -20,6 +20,33 @@ export function rutasMantenimiento(deps: DependenciasMantenimiento): Router {
   const router = Router({ mergeParams: true })
   router.use(requiereSesion(deps.tokens, deps.sesiones))
 
+  /**
+   * @openapi
+   * /api/garage/{motoGuardadaId}/mantenimientos:
+   *   get:
+   *     tags: [Mantenimiento]
+   *     summary: Lista los mantenimientos registrados de una moto guardada
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: motoGuardadaId
+   *         required: true
+   *         schema: { type: string }
+   *     responses:
+   *       200:
+   *         description: Mantenimientos registrados
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: array
+   *               items: { $ref: '#/components/schemas/RegistroMantenimiento' }
+   *       404:
+   *         description: No existe esa moto guardada para este usuario
+   *         content:
+   *           application/json:
+   *             schema: { $ref: '#/components/schemas/Error' }
+   */
   router.get('/', async (req: Request, res: Response) => {
     try {
       res.json(await deps.listarMantenimientos.ejecutar(req.usuarioId!, req.params.motoGuardadaId))
@@ -32,6 +59,41 @@ export function rutasMantenimiento(deps: DependenciasMantenimiento): Router {
     }
   })
 
+  /**
+   * @openapi
+   * /api/garage/{motoGuardadaId}/mantenimientos:
+   *   post:
+   *     tags: [Mantenimiento]
+   *     summary: Registra un mantenimiento para una moto guardada
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: motoGuardadaId
+   *         required: true
+   *         schema: { type: string }
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema: { $ref: '#/components/schemas/NuevoMantenimientoInput' }
+   *     responses:
+   *       201:
+   *         description: Mantenimiento registrado
+   *         content:
+   *           application/json:
+   *             schema: { $ref: '#/components/schemas/RegistroMantenimiento' }
+   *       400:
+   *         description: tipo, kilometraje y costo son obligatorios y deben tener el formato correcto
+   *         content:
+   *           application/json:
+   *             schema: { $ref: '#/components/schemas/Error' }
+   *       404:
+   *         description: No existe esa moto guardada para este usuario
+   *         content:
+   *           application/json:
+   *             schema: { $ref: '#/components/schemas/Error' }
+   */
   router.post('/', async (req: Request, res: Response) => {
     const { tipo, fecha, kilometraje, costo, notas } = req.body ?? {}
     if (!esTipoMantenimiento(tipo) || typeof kilometraje !== 'number' || typeof costo !== 'number') {

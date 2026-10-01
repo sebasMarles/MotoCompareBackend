@@ -19,6 +19,31 @@ export function rutasCostos(deps: DependenciasCostos): Router {
   const router = Router({ mergeParams: true })
   router.use(requiereSesion(deps.tokens, deps.sesiones))
 
+  /**
+   * @openapi
+   * /api/garage/{motoGuardadaId}/costos:
+   *   get:
+   *     tags: [Costos]
+   *     summary: Lista los costos mensuales de una moto guardada, con el total y el salario ideal
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: motoGuardadaId
+   *         required: true
+   *         schema: { type: string }
+   *     responses:
+   *       200:
+   *         description: Resumen de costos
+   *         content:
+   *           application/json:
+   *             schema: { $ref: '#/components/schemas/ResumenCostosDTO' }
+   *       404:
+   *         description: No existe esa moto guardada para este usuario
+   *         content:
+   *           application/json:
+   *             schema: { $ref: '#/components/schemas/Error' }
+   */
   router.get('/', async (req: Request, res: Response) => {
     try {
       res.json(await deps.listarCostosMensuales.ejecutar(req.usuarioId!, req.params.motoGuardadaId))
@@ -31,6 +56,41 @@ export function rutasCostos(deps: DependenciasCostos): Router {
     }
   })
 
+  /**
+   * @openapi
+   * /api/garage/{motoGuardadaId}/costos:
+   *   post:
+   *     tags: [Costos]
+   *     summary: Configura un costo mensual para una moto guardada
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: motoGuardadaId
+   *         required: true
+   *         schema: { type: string }
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema: { $ref: '#/components/schemas/NuevoCostoInput' }
+   *     responses:
+   *       201:
+   *         description: Costo mensual creado
+   *         content:
+   *           application/json:
+   *             schema: { $ref: '#/components/schemas/CostoMensual' }
+   *       400:
+   *         description: categoria y monto son obligatorios y deben tener el formato correcto
+   *         content:
+   *           application/json:
+   *             schema: { $ref: '#/components/schemas/Error' }
+   *       404:
+   *         description: No existe esa moto guardada para este usuario
+   *         content:
+   *           application/json:
+   *             schema: { $ref: '#/components/schemas/Error' }
+   */
   router.post('/', async (req: Request, res: Response) => {
     const { categoria, monto, descripcion } = req.body ?? {}
     if (!esCategoriaCosto(categoria) || typeof monto !== 'number') {
