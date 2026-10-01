@@ -19,47 +19,47 @@ Todas, salvo /salud, /auth/registro, /auth/login, /motos, /motos/comparaciones-r
 
 | Verbo | Ruta |
 | --- | --- |
-| <span style="background:#61affe;color:#fff;padding:2px 10px;border-radius:3px;font-weight:bold;font-size:12px;">GET</span> | \`/salud\` |
+| <span style="display:inline-block;min-width:66px;text-align:center;padding:4px 10px;border-radius:3px;font-weight:bold;font-size:13px;color:#fff;background:#61affe;">GET</span> | \`/salud\` |
 
 #### Auth (\`/auth\`)
 
 | Verbo | Ruta |
 | --- | --- |
-| <span style="background:#49cc90;color:#fff;padding:2px 10px;border-radius:3px;font-weight:bold;font-size:12px;">POST</span> | \`/auth/registro\` |
-| <span style="background:#49cc90;color:#fff;padding:2px 10px;border-radius:3px;font-weight:bold;font-size:12px;">POST</span> | \`/auth/login\` |
-| <span style="background:#61affe;color:#fff;padding:2px 10px;border-radius:3px;font-weight:bold;font-size:12px;">GET</span> | \`/auth/perfil\` |
-| <span style="background:#49cc90;color:#fff;padding:2px 10px;border-radius:3px;font-weight:bold;font-size:12px;">POST</span> | \`/auth/logout\` |
+| <span style="display:inline-block;min-width:66px;text-align:center;padding:4px 10px;border-radius:3px;font-weight:bold;font-size:13px;color:#fff;background:#49cc90;">POST</span> | \`/auth/registro\` |
+| <span style="display:inline-block;min-width:66px;text-align:center;padding:4px 10px;border-radius:3px;font-weight:bold;font-size:13px;color:#fff;background:#49cc90;">POST</span> | \`/auth/login\` |
+| <span style="display:inline-block;min-width:66px;text-align:center;padding:4px 10px;border-radius:3px;font-weight:bold;font-size:13px;color:#fff;background:#61affe;">GET</span> | \`/auth/perfil\` |
+| <span style="display:inline-block;min-width:66px;text-align:center;padding:4px 10px;border-radius:3px;font-weight:bold;font-size:13px;color:#fff;background:#49cc90;">POST</span> | \`/auth/logout\` |
 
 #### Motos (\`/motos\`)
 
 | Verbo | Ruta |
 | --- | --- |
-| <span style="background:#61affe;color:#fff;padding:2px 10px;border-radius:3px;font-weight:bold;font-size:12px;">GET</span> | \`/motos\` |
-| <span style="background:#61affe;color:#fff;padding:2px 10px;border-radius:3px;font-weight:bold;font-size:12px;">GET</span> | \`/motos/comparaciones-recomendadas\` |
-| <span style="background:#61affe;color:#fff;padding:2px 10px;border-radius:3px;font-weight:bold;font-size:12px;">GET</span> | \`/motos/{id}\` |
+| <span style="display:inline-block;min-width:66px;text-align:center;padding:4px 10px;border-radius:3px;font-weight:bold;font-size:13px;color:#fff;background:#61affe;">GET</span> | \`/motos\` |
+| <span style="display:inline-block;min-width:66px;text-align:center;padding:4px 10px;border-radius:3px;font-weight:bold;font-size:13px;color:#fff;background:#61affe;">GET</span> | \`/motos/comparaciones-recomendadas\` |
+| <span style="display:inline-block;min-width:66px;text-align:center;padding:4px 10px;border-radius:3px;font-weight:bold;font-size:13px;color:#fff;background:#61affe;">GET</span> | \`/motos/{id}\` |
 
 #### Garage (\`/garage\`)
 
 | Verbo | Ruta |
 | --- | --- |
-| <span style="background:#61affe;color:#fff;padding:2px 10px;border-radius:3px;font-weight:bold;font-size:12px;">GET</span> | \`/garage\` |
-| <span style="background:#49cc90;color:#fff;padding:2px 10px;border-radius:3px;font-weight:bold;font-size:12px;">POST</span> | \`/garage\` |
-| <span style="background:#50e3c2;color:#3b4151;padding:2px 10px;border-radius:3px;font-weight:bold;font-size:12px;">PATCH</span> | \`/garage/{id}/kilometraje\` |
-| <span style="background:#f93e3e;color:#fff;padding:2px 10px;border-radius:3px;font-weight:bold;font-size:12px;">DELETE</span> | \`/garage/{id}\` |
+| <span style="display:inline-block;min-width:66px;text-align:center;padding:4px 10px;border-radius:3px;font-weight:bold;font-size:13px;color:#fff;background:#61affe;">GET</span> | \`/garage\` |
+| <span style="display:inline-block;min-width:66px;text-align:center;padding:4px 10px;border-radius:3px;font-weight:bold;font-size:13px;color:#fff;background:#49cc90;">POST</span> | \`/garage\` |
+| <span style="display:inline-block;min-width:66px;text-align:center;padding:4px 10px;border-radius:3px;font-weight:bold;font-size:13px;color:#fff;background:#50e3c2;">PATCH</span> | \`/garage/{id}/kilometraje\` |
+| <span style="display:inline-block;min-width:66px;text-align:center;padding:4px 10px;border-radius:3px;font-weight:bold;font-size:13px;color:#fff;background:#f93e3e;">DELETE</span> | \`/garage/{id}\` |
 
 #### Mantenimiento (\`/garage/{motoGuardadaId}/mantenimientos\`)
 
 | Verbo | Ruta |
 | --- | --- |
-| <span style="background:#61affe;color:#fff;padding:2px 10px;border-radius:3px;font-weight:bold;font-size:12px;">GET</span> | \`/garage/{motoGuardadaId}/mantenimientos\` |
-| <span style="background:#49cc90;color:#fff;padding:2px 10px;border-radius:3px;font-weight:bold;font-size:12px;">POST</span> | \`/garage/{motoGuardadaId}/mantenimientos\` |
+| <span style="display:inline-block;min-width:66px;text-align:center;padding:4px 10px;border-radius:3px;font-weight:bold;font-size:13px;color:#fff;background:#61affe;">GET</span> | \`/garage/{motoGuardadaId}/mantenimientos\` |
+| <span style="display:inline-block;min-width:66px;text-align:center;padding:4px 10px;border-radius:3px;font-weight:bold;font-size:13px;color:#fff;background:#49cc90;">POST</span> | \`/garage/{motoGuardadaId}/mantenimientos\` |
 
 #### Costos (\`/garage/{motoGuardadaId}/costos\`)
 
 | Verbo | Ruta |
 | --- | --- |
-| <span style="background:#61affe;color:#fff;padding:2px 10px;border-radius:3px;font-weight:bold;font-size:12px;">GET</span> | \`/garage/{motoGuardadaId}/costos\` |
-| <span style="background:#49cc90;color:#fff;padding:2px 10px;border-radius:3px;font-weight:bold;font-size:12px;">POST</span> | \`/garage/{motoGuardadaId}/costos\` |`,
+| <span style="display:inline-block;min-width:66px;text-align:center;padding:4px 10px;border-radius:3px;font-weight:bold;font-size:13px;color:#fff;background:#61affe;">GET</span> | \`/garage/{motoGuardadaId}/costos\` |
+| <span style="display:inline-block;min-width:66px;text-align:center;padding:4px 10px;border-radius:3px;font-weight:bold;font-size:13px;color:#fff;background:#49cc90;">POST</span> | \`/garage/{motoGuardadaId}/costos\` |`,
   },
   servers: [{ url: '/api', description: 'Servidor actual' }],
   components: {
