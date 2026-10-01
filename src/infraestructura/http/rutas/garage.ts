@@ -22,10 +22,62 @@ export function rutasGarage(deps: DependenciasGarage): Router {
   const router = Router()
   router.use(requiereSesion(deps.tokens, deps.sesiones)) // Mi Garage es exclusivo de usuarios registrados.
 
+  /**
+   * @openapi
+   * /api/garage:
+   *   get:
+   *     tags: [Garage]
+   *     summary: Lista las motos guardadas del usuario autenticado
+   *     security:
+   *       - bearerAuth: []
+   *     responses:
+   *       200:
+   *         description: Motos guardadas
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: array
+   *               items: { $ref: '#/components/schemas/MotoGuardadaDTO' }
+   *       401:
+   *         description: Se requiere iniciar sesión
+   *         content:
+   *           application/json:
+   *             schema: { $ref: '#/components/schemas/Error' }
+   */
   router.get('/', async (req: Request, res: Response) => {
     res.json(await deps.listarGarage.ejecutar(req.usuarioId!))
   })
 
+  /**
+   * @openapi
+   * /api/garage:
+   *   post:
+   *     tags: [Garage]
+   *     summary: Agrega una moto al garage del usuario autenticado
+   *     security:
+   *       - bearerAuth: []
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema: { $ref: '#/components/schemas/AgregarMotoInput' }
+   *     responses:
+   *       201:
+   *         description: Moto agregada al garage
+   *         content:
+   *           application/json:
+   *             schema: { $ref: '#/components/schemas/MotoGuardada' }
+   *       400:
+   *         description: motoId es obligatorio
+   *         content:
+   *           application/json:
+   *             schema: { $ref: '#/components/schemas/Error' }
+   *       404:
+   *         description: La moto no existe
+   *         content:
+   *           application/json:
+   *             schema: { $ref: '#/components/schemas/Error' }
+   */
   router.post('/', async (req: Request, res: Response) => {
     const { motoId, apodo } = req.body ?? {}
     if (typeof motoId !== 'string') {
@@ -44,6 +96,41 @@ export function rutasGarage(deps: DependenciasGarage): Router {
     }
   })
 
+  /**
+   * @openapi
+   * /api/garage/{id}/kilometraje:
+   *   patch:
+   *     tags: [Garage]
+   *     summary: Actualiza el kilometraje de una moto guardada
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema: { type: string }
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema: { $ref: '#/components/schemas/ActualizarKilometrajeInput' }
+   *     responses:
+   *       200:
+   *         description: Moto guardada actualizada
+   *         content:
+   *           application/json:
+   *             schema: { $ref: '#/components/schemas/MotoGuardada' }
+   *       400:
+   *         description: kilometrajeActual debe ser un número
+   *         content:
+   *           application/json:
+   *             schema: { $ref: '#/components/schemas/Error' }
+   *       404:
+   *         description: No existe esa moto guardada para este usuario
+   *         content:
+   *           application/json:
+   *             schema: { $ref: '#/components/schemas/Error' }
+   */
   router.patch('/:id/kilometraje', async (req: Request, res: Response) => {
     const { kilometrajeActual } = req.body ?? {}
     if (typeof kilometrajeActual !== 'number') {
@@ -62,6 +149,28 @@ export function rutasGarage(deps: DependenciasGarage): Router {
     }
   })
 
+  /**
+   * @openapi
+   * /api/garage/{id}:
+   *   delete:
+   *     tags: [Garage]
+   *     summary: Elimina una moto del garage del usuario autenticado
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema: { type: string }
+   *     responses:
+   *       204:
+   *         description: Moto eliminada
+   *       404:
+   *         description: No existe esa moto guardada para este usuario
+   *         content:
+   *           application/json:
+   *             schema: { $ref: '#/components/schemas/Error' }
+   */
   router.delete('/:id', async (req: Request, res: Response) => {
     try {
       await deps.eliminarMotoDelGarage.ejecutar(req.usuarioId!, req.params.id)

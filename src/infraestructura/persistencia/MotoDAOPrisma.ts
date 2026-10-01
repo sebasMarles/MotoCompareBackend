@@ -21,12 +21,11 @@ export class MotoDAOPrisma implements MotoDAO {
   constructor(private readonly prisma: PrismaClient) {}
 
   async listar(filtros: FiltrosMoto = {}): Promise<Moto[]> {
-    const filas = await this.prisma.moto.findMany({
-      where: {
-        marca: filtros.marca,
-        categoria: filtros.categoria,
-      },
-    });
+    const where: { marca?: string; categoria?: string } = {};
+    if (filtros.marca !== undefined) where.marca = filtros.marca;
+    if (filtros.categoria !== undefined) where.categoria = filtros.categoria;
+
+    const filas = await this.prisma.moto.findMany({ where });
     return filas.map(aDominio);
   }
 
