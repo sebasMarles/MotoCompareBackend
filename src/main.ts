@@ -13,6 +13,7 @@ import { RegistrarMantenimiento } from './aplicacion/casos-uso/RegistrarMantenim
 import { ListarMantenimientos } from './aplicacion/casos-uso/ListarMantenimientos'
 import { ConfigurarCostoMensual } from './aplicacion/casos-uso/ConfigurarCostoMensual'
 import { ListarCostosMensuales } from './aplicacion/casos-uso/ListarCostosMensuales'
+import { EliminarCostoMensual } from './aplicacion/casos-uso/EliminarCostoMensual'
 import { ListarComparacionesRecomendadas } from './aplicacion/casos-uso/ListarComparacionesRecomendadas'
 
 import { prisma } from './infraestructura/persistencia/prisma'
@@ -62,6 +63,7 @@ const app = crearServidor({
   listarMantenimientos: new ListarMantenimientos(garage, mantenimientos),
   configurarCostoMensual: new ConfigurarCostoMensual(garage, costos),
   listarCostosMensuales: new ListarCostosMensuales(garage, costos),
+  eliminarCostoMensual: new EliminarCostoMensual(garage, costos),
 })
 
 const puerto = Number(process.env['PORT'] ?? 3002)

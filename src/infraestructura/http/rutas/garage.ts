@@ -138,7 +138,7 @@ export function rutasGarage(deps: DependenciasGarage): Router {
       return
     }
     try {
-      const guardada = await deps.actualizarKilometraje.ejecutar(req.usuarioId!, req.params.id, kilometrajeActual)
+      const guardada = await deps.actualizarKilometraje.ejecutar(req.usuarioId!, req.params.id as string, kilometrajeActual)
       res.json(guardada)
     } catch (error) {
       if (error instanceof GarageNoEncontrado) {
@@ -173,7 +173,7 @@ export function rutasGarage(deps: DependenciasGarage): Router {
    */
   router.delete('/:id', async (req: Request, res: Response) => {
     try {
-      await deps.eliminarMotoDelGarage.ejecutar(req.usuarioId!, req.params.id)
+      await deps.eliminarMotoDelGarage.ejecutar(req.usuarioId!, req.params.id as string)
       res.status(204).send()
     } catch (error) {
       if (error instanceof GarageNoEncontrado) {
