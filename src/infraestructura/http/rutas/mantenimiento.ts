@@ -49,7 +49,7 @@ export function rutasMantenimiento(deps: DependenciasMantenimiento): Router {
    */
   router.get('/', async (req: Request, res: Response) => {
     try {
-      res.json(await deps.listarMantenimientos.ejecutar(req.usuarioId!, req.params.motoGuardadaId))
+      res.json(await deps.listarMantenimientos.ejecutar(req.usuarioId!, req.params.motoGuardadaId as string))
     } catch (error) {
       if (error instanceof GarageNoEncontrado) {
         res.status(404).json({ error: error.message })
@@ -102,7 +102,7 @@ export function rutasMantenimiento(deps: DependenciasMantenimiento): Router {
     }
     try {
       const registro = await deps.registrarMantenimiento.ejecutar(req.usuarioId!, {
-        motoGuardadaId: req.params.motoGuardadaId,
+        motoGuardadaId: req.params.motoGuardadaId as string,
         tipo,
         fecha: fecha ? new Date(fecha) : new Date(),
         kilometraje,
