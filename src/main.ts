@@ -64,6 +64,9 @@ const app = crearServidor({
   configurarCostoMensual: new ConfigurarCostoMensual(garage, costos),
   listarCostosMensuales: new ListarCostosMensuales(garage, costos),
   eliminarCostoMensual: new EliminarCostoMensual(garage, costos),
+  comprobarBaseDeDatos: async () => {
+    await prisma.$queryRaw`SELECT 1`
+  },
 })
 
 const puerto = Number(process.env['PORT'] ?? 3002)

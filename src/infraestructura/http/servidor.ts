@@ -18,7 +18,9 @@ export type DependenciasServidor = DependenciasAutenticacion &
   DependenciasMotos &
   DependenciasGarage &
   DependenciasMantenimiento &
-  DependenciasCostos
+  DependenciasCostos & {
+    comprobarBaseDeDatos: () => Promise<void>
+  }
 
 // Origen permitido para llamadas cross-origin (el frontend Angular corre en un
 // puerto distinto al del backend). Configurable por si el frontend corre en
@@ -38,18 +40,35 @@ export function crearServidor(deps: DependenciasServidor): Express {
    * /api/salud:
    *   get:
    *     tags: [Sistema]
-   *     summary: Comprueba que el servidor esté arriba
+   *     summary: Comprueba que el servidor esté arriba y que la base de datos responda
    *     responses:
    *       200:
-   *         description: El servidor responde
+   *         description: El servidor y la base de datos responden
    *         content:
    *           application/json:
    *             schema:
    *               type: object
    *               properties:
    *                 estado: { type: string, example: 'ok' }
+   *                 baseDeDatos: { type: string, example: 'ok' }
+   *       503:
+   *         description: El servidor está arriba pero no logra conectarse a la base de datos
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 estado: { type: string, example: 'error' }
+   *                 baseDeDatos: { type: string, example: 'error' }
    */
-  api.get('/salud', (_req, res) => void res.json({ estado: 'ok' }))
+  api.get('/salud', async (_req, res) => {
+    try {
+      await deps.comprobarBaseDeDatos()
+      res.json({ estado: 'ok', baseDeDatos: 'ok' })
+    } catch {
+      res.status(503).json({ estado: 'error', baseDeDatos: 'error' })
+    }
+  })
   api.use('/auth', rutasAutenticacion(deps))
   api.use('/motos', rutasMotos(deps))
   api.use('/garage', rutasGarage(deps))
