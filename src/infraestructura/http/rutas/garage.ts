@@ -2,6 +2,7 @@ import { Router } from 'express'
 import type { Request, Response } from 'express'
 import { MotoNoEncontrada } from '../../../aplicacion/casos-uso/ObtenerMotoPorId'
 import { GarageNoEncontrado } from '../../../aplicacion/casos-uso/soporte-garage'
+import { KilometrajeInvalido } from '../../../aplicacion/casos-uso/ActualizarKilometraje'
 import type { AgregarMotoAlGarage } from '../../../aplicacion/casos-uso/AgregarMotoAlGarage'
 import type { ListarGarage } from '../../../aplicacion/casos-uso/ListarGarage'
 import type { ActualizarKilometraje } from '../../../aplicacion/casos-uso/ActualizarKilometraje'
@@ -121,7 +122,7 @@ export function rutasGarage(deps: DependenciasGarage): Router {
    *           application/json:
    *             schema: { $ref: '#/components/schemas/MotoGuardada' }
    *       400:
-   *         description: kilometrajeActual debe ser un número
+   *         description: kilometrajeActual debe ser un número, o es menor al ya registrado
    *         content:
    *           application/json:
    *             schema: { $ref: '#/components/schemas/Error' }
@@ -143,6 +144,10 @@ export function rutasGarage(deps: DependenciasGarage): Router {
     } catch (error) {
       if (error instanceof GarageNoEncontrado) {
         res.status(404).json({ error: error.message })
+        return
+      }
+      if (error instanceof KilometrajeInvalido) {
+        res.status(400).json({ error: error.message })
         return
       }
       throw error
