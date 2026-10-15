@@ -4,6 +4,12 @@ import { MotoNoEncontrada } from '../../../aplicacion/casos-uso/ObtenerMotoPorId
 import type { ListarMotos } from '../../../aplicacion/casos-uso/ListarMotos'
 import type { ObtenerMotoPorId } from '../../../aplicacion/casos-uso/ObtenerMotoPorId'
 import type { ListarComparacionesRecomendadas } from '../../../aplicacion/casos-uso/ListarComparacionesRecomendadas'
+import type { OrdenMoto } from '../../../dominio/puertos'
+
+const ORDENES_VALIDOS: OrdenMoto[] = ['precio_asc', 'precio_desc', 'potencia_asc', 'potencia_desc']
+function esOrdenValido(valor: unknown): valor is OrdenMoto {
+  return typeof valor === 'string' && (ORDENES_VALIDOS as string[]).includes(valor)
+}
 
 export interface DependenciasMotos {
   listarMotos: ListarMotos
@@ -39,6 +45,10 @@ export function rutasMotos(deps: DependenciasMotos): Router {
    *         name: pagina
    *         description: Número de página (empieza en 1). Solo aplica si se envía `limite`.
    *         schema: { type: integer, minimum: 1 }
+   *       - in: query
+   *         name: orden
+   *         description: Orden del catálogo.
+   *         schema: { type: string, enum: [precio_asc, precio_desc, potencia_asc, potencia_desc] }
    *     responses:
    *       200:
    *         description: Lista de motos
@@ -49,11 +59,18 @@ export function rutasMotos(deps: DependenciasMotos): Router {
    *               items: { $ref: '#/components/schemas/Moto' }
    */
   router.get('/', async (req: Request, res: Response) => {
-    const { marca, categoria, busqueda, limite, pagina } = req.query
-    const filtros: { marca?: string; categoria?: string; busqueda?: string; limite?: number; pagina?: number } = {}
+    const { marca, categoria, busqueda, limite, pagina, orden } = req.query
+    const filtros: { marca?: string; categoria?: string; busqueda?: string; limite?: number; pagina?: number; orden?: OrdenMoto } = {}
     if (typeof marca === 'string') filtros.marca = marca
     if (typeof categoria === 'string') filtros.categoria = categoria
     if (typeof busqueda === 'string' && busqueda.trim() !== '') filtros.busqueda = busqueda.trim()
+    if (orden !== undefined) {
+      if (!esOrdenValido(orden)) {
+        res.status(400).json({ error: 'orden debe ser uno de: ' + ORDENES_VALIDOS.join(', ') })
+        return
+      }
+      filtros.orden = orden
+    }
 
     if (typeof limite === 'string') {
       const limiteNumero = Number(limite)

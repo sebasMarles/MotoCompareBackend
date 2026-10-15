@@ -17,6 +17,8 @@ export interface UsuarioDAO {
   porId(id: string): Promise<Usuario | null>
 }
 
+export type OrdenMoto = 'precio_asc' | 'precio_desc' | 'potencia_asc' | 'potencia_desc'
+
 export interface FiltrosMoto {
   marca?: string
   categoria?: string
@@ -26,6 +28,8 @@ export interface FiltrosMoto {
   limite?: number
   /** Número de página, empezando en 1. Si no se da, se asume 1. */
   pagina?: number
+  /** Orden del catálogo por precio o potencia, ascendente o descendente. */
+  orden?: OrdenMoto
 }
 
 export interface MotoDAO {
