@@ -27,6 +27,10 @@ export function rutasMotos(deps: DependenciasMotos): Router {
    *       - in: query
    *         name: categoria
    *         schema: { type: string }
+   *       - in: query
+   *         name: busqueda
+   *         description: Texto libre; filtra motos cuya marca o modelo lo contengan.
+   *         schema: { type: string }
    *     responses:
    *       200:
    *         description: Lista de motos
@@ -37,10 +41,11 @@ export function rutasMotos(deps: DependenciasMotos): Router {
    *               items: { $ref: '#/components/schemas/Moto' }
    */
   router.get('/', async (req: Request, res: Response) => {
-    const { marca, categoria } = req.query
-    const filtros: { marca?: string; categoria?: string } = {}
+    const { marca, categoria, busqueda } = req.query
+    const filtros: { marca?: string; categoria?: string; busqueda?: string } = {}
     if (typeof marca === 'string') filtros.marca = marca
     if (typeof categoria === 'string') filtros.categoria = categoria
+    if (typeof busqueda === 'string' && busqueda.trim() !== '') filtros.busqueda = busqueda.trim()
     const motos = await deps.listarMotos.ejecutar(filtros)
     res.json(motos)
   })

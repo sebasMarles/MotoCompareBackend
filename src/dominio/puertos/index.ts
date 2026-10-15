@@ -20,6 +20,8 @@ export interface UsuarioDAO {
 export interface FiltrosMoto {
   marca?: string
   categoria?: string
+  /** Texto libre: filtra motos cuya marca o modelo lo contenga (sin distinguir mayúsculas/minúsculas). */
+  busqueda?: string
 }
 
 export interface MotoDAO {
