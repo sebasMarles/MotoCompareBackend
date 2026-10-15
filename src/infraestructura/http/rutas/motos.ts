@@ -28,6 +28,10 @@ export function rutasMotos(deps: DependenciasMotos): Router {
    *         name: categoria
    *         schema: { type: string }
    *       - in: query
+   *         name: busqueda
+   *         description: Texto libre; filtra motos cuya marca o modelo lo contengan.
+   *         schema: { type: string }
+   *       - in: query
    *         name: limite
    *         description: Cantidad máxima de motos a devolver (paginación). Entre 1 y 100.
    *         schema: { type: integer, minimum: 1, maximum: 100 }
@@ -45,10 +49,11 @@ export function rutasMotos(deps: DependenciasMotos): Router {
    *               items: { $ref: '#/components/schemas/Moto' }
    */
   router.get('/', async (req: Request, res: Response) => {
-    const { marca, categoria, limite, pagina } = req.query
-    const filtros: { marca?: string; categoria?: string; limite?: number; pagina?: number } = {}
+    const { marca, categoria, busqueda, limite, pagina } = req.query
+    const filtros: { marca?: string; categoria?: string; busqueda?: string; limite?: number; pagina?: number } = {}
     if (typeof marca === 'string') filtros.marca = marca
     if (typeof categoria === 'string') filtros.categoria = categoria
+    if (typeof busqueda === 'string' && busqueda.trim() !== '') filtros.busqueda = busqueda.trim()
 
     if (typeof limite === 'string') {
       const limiteNumero = Number(limite)

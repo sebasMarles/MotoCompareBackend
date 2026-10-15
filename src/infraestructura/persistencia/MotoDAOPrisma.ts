@@ -21,9 +21,21 @@ export class MotoDAOPrisma implements MotoDAO {
   constructor(private readonly prisma: PrismaClient) {}
 
   async listar(filtros: FiltrosMoto = {}): Promise<Moto[]> {
-    const where: { marca?: string; categoria?: string } = {};
+    const where: {
+      marca?: string;
+      categoria?: string;
+      OR?: Array<
+        { marca: { contains: string; mode: "insensitive" } } | { modelo: { contains: string; mode: "insensitive" } }
+      >;
+    } = {};
     if (filtros.marca !== undefined) where.marca = filtros.marca;
     if (filtros.categoria !== undefined) where.categoria = filtros.categoria;
+    if (filtros.busqueda !== undefined) {
+      where.OR = [
+        { marca: { contains: filtros.busqueda, mode: "insensitive" } },
+        { modelo: { contains: filtros.busqueda, mode: "insensitive" } },
+      ];
+    }
 
     const limite = filtros.limite;
     const pagina = filtros.pagina ?? 1;
