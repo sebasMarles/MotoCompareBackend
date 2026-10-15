@@ -20,6 +20,10 @@ export interface UsuarioDAO {
 export interface FiltrosMoto {
   marca?: string
   categoria?: string
+  /** Tamaño de página (cuántas motos devolver). Se usa junto con `pagina`. */
+  limite?: number
+  /** Número de página, empezando en 1. Si no se da, se asume 1. */
+  pagina?: number
 }
 
 export interface MotoDAO {

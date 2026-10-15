@@ -25,7 +25,13 @@ export class MotoDAOPrisma implements MotoDAO {
     if (filtros.marca !== undefined) where.marca = filtros.marca;
     if (filtros.categoria !== undefined) where.categoria = filtros.categoria;
 
-    const filas = await this.prisma.moto.findMany({ where });
+    const limite = filtros.limite;
+    const pagina = filtros.pagina ?? 1;
+
+    const filas = await this.prisma.moto.findMany({
+      where,
+      ...(limite !== undefined ? { take: limite, skip: (pagina - 1) * limite } : {}),
+    });
     return filas.map(aDominio);
   }
 
