@@ -32,11 +32,11 @@ Todas, salvo /salud, /auth/registro, /auth/login, /motos, /motos/comparaciones-r
 
 #### Motos (\`/motos\`)
 
-| Verbo | Ruta |
-| --- | --- |
-| <span style="display:inline-block;min-width:66px;text-align:center;padding:4px 10px;border-radius:3px;font-weight:bold;font-size:13px;color:#fff;background:#61affe;">GET</span> | \`/motos\` |
-| <span style="display:inline-block;min-width:66px;text-align:center;padding:4px 10px;border-radius:3px;font-weight:bold;font-size:13px;color:#fff;background:#61affe;">GET</span> | \`/motos/comparaciones-recomendadas\` |
-| <span style="display:inline-block;min-width:66px;text-align:center;padding:4px 10px;border-radius:3px;font-weight:bold;font-size:13px;color:#fff;background:#61affe;">GET</span> | \`/motos/{id}\` |
+| Verbo | Ruta | Notas |
+| --- | --- | --- |
+| <span style="display:inline-block;min-width:66px;text-align:center;padding:4px 10px;border-radius:3px;font-weight:bold;font-size:13px;color:#fff;background:#61affe;">GET</span> | \`/motos\` | Soporta \`marca\`, \`categoria\`, \`busqueda\` (texto libre), \`limite\`/\`pagina\` (paginación) y \`orden\` (\`precio_asc\`, \`precio_desc\`, \`potencia_asc\`, \`potencia_desc\`) |
+| <span style="display:inline-block;min-width:66px;text-align:center;padding:4px 10px;border-radius:3px;font-weight:bold;font-size:13px;color:#fff;background:#61affe;">GET</span> | \`/motos/comparaciones-recomendadas\` | |
+| <span style="display:inline-block;min-width:66px;text-align:center;padding:4px 10px;border-radius:3px;font-weight:bold;font-size:13px;color:#fff;background:#61affe;">GET</span> | \`/motos/{id}\` | |
 
 #### Garage (\`/garage\`)
 
