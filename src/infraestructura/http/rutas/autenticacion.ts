@@ -1,8 +1,6 @@
 import { Router } from 'express'
 import type { Request, Response } from 'express'
-import { CorreoYaRegistrado } from '../../../aplicacion/casos-uso/RegistrarUsuario'
 import type { RegistrarUsuario } from '../../../aplicacion/casos-uso/RegistrarUsuario'
-import { CredencialesInvalidas } from '../../../aplicacion/casos-uso/IniciarSesion'
 import type { IniciarSesion } from '../../../aplicacion/casos-uso/IniciarSesion'
 import type { CerrarSesion } from '../../../aplicacion/casos-uso/CerrarSesion'
 import { aUsuarioDTO } from '../../../dominio/modelo/Usuario'
@@ -72,16 +70,8 @@ export function rutasAutenticacion(deps: DependenciasAutenticacion): Router {
       res.status(400).json({ error: 'La clave debe tener al menos 8 caracteres' })
       return
     }
-    try {
-      const usuario = await deps.registrarUsuario.ejecutar({ nombre, correo, clave })
-      res.status(201).json(aUsuarioDTO(usuario))
-    } catch (error) {
-      if (error instanceof CorreoYaRegistrado) {
-        res.status(409).json({ error: error.message })
-        return
-      }
-      throw error
-    }
+    const usuario = await deps.registrarUsuario.ejecutar({ nombre, correo, clave })
+    res.status(201).json(aUsuarioDTO(usuario))
   })
 
   /**
@@ -122,16 +112,8 @@ export function rutasAutenticacion(deps: DependenciasAutenticacion): Router {
       res.status(400).json({ error: 'correo y clave son obligatorios' })
       return
     }
-    try {
-      const sesion = await deps.iniciarSesion.ejecutar(correo, clave)
-      res.json(sesion)
-    } catch (error) {
-      if (error instanceof CredencialesInvalidas) {
-        res.status(401).json({ error: error.message })
-        return
-      }
-      throw error
-    }
+    const sesion = await deps.iniciarSesion.ejecutar(correo, clave)
+    res.json(sesion)
   })
 
   /**

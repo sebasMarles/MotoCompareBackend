@@ -1,6 +1,5 @@
 import { Router } from 'express'
 import type { Request, Response } from 'express'
-import { MotoNoEncontrada } from '../../../aplicacion/casos-uso/ObtenerMotoPorId'
 import type { ListarMotos } from '../../../aplicacion/casos-uso/ListarMotos'
 import type { ObtenerMotoPorId } from '../../../aplicacion/casos-uso/ObtenerMotoPorId'
 import type { ListarComparacionesRecomendadas } from '../../../aplicacion/casos-uso/ListarComparacionesRecomendadas'
@@ -137,15 +136,7 @@ export function rutasMotos(deps: DependenciasMotos): Router {
    *             schema: { $ref: '#/components/schemas/Error' }
    */
   router.get('/:id', async (req: Request, res: Response) => {
-    try {
-      res.json(await deps.obtenerMotoPorId.ejecutar(req.params.id as string))
-    } catch (error) {
-      if (error instanceof MotoNoEncontrada) {
-        res.status(404).json({ error: error.message })
-        return
-      }
-      throw error
-    }
+    res.json(await deps.obtenerMotoPorId.ejecutar(req.params.id as string))
   })
 
   return router
