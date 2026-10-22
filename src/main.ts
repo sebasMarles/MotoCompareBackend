@@ -3,6 +3,7 @@
 import { RegistrarUsuario } from './aplicacion/casos-uso/RegistrarUsuario'
 import { IniciarSesion } from './aplicacion/casos-uso/IniciarSesion'
 import { CerrarSesion } from './aplicacion/casos-uso/CerrarSesion'
+import { CerrarSesionEnTodosLosDispositivos } from './aplicacion/casos-uso/CerrarSesionEnTodosLosDispositivos'
 import { ListarMotos } from './aplicacion/casos-uso/ListarMotos'
 import { ObtenerMotoPorId } from './aplicacion/casos-uso/ObtenerMotoPorId'
 import { AgregarMotoAlGarage } from './aplicacion/casos-uso/AgregarMotoAlGarage'
@@ -52,6 +53,7 @@ const app = crearServidor({
   registrarUsuario: new RegistrarUsuario(usuarios, claves),
   iniciarSesion: new IniciarSesion(usuarios, claves, tokens),
   cerrarSesion: new CerrarSesion(sesiones),
+  cerrarSesionEnTodos: new CerrarSesionEnTodosLosDispositivos(sesiones),
   listarMotos: new ListarMotos(motos),
   obtenerMotoPorId: new ObtenerMotoPorId(motos),
   listarComparacionesRecomendadas: new ListarComparacionesRecomendadas(comparaciones, motos),

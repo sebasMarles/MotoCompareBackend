@@ -15,4 +15,17 @@ export class SesionesDAOPrisma implements SesionesDAO {
   async estaRevocada(jti: string): Promise<boolean> {
     return (await this.prisma.sesionRevocada.findUnique({ where: { jti } })) !== null
   }
+
+  async cerrarTodasDelUsuario(usuarioId: string, desde: Date): Promise<void> {
+    await this.prisma.cierreGlobalSesion.upsert({
+      where: { usuarioId },
+      create: { usuarioId, desde },
+      update: { desde },
+    })
+  }
+
+  async cierreGlobalDe(usuarioId: string): Promise<Date | null> {
+    const cierre = await this.prisma.cierreGlobalSesion.findUnique({ where: { usuarioId } })
+    return cierre?.desde ?? null
+  }
 }

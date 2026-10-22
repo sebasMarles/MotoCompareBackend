@@ -66,11 +66,13 @@ export interface ServicioClaves {
 }
 
 /** Contenido útil del token: viaja entre el cliente y el servidor en cada petición.
- *  `jti` identifica esta sesión concreta (para poder revocarla); `exp`, cuándo expira. */
+ *  `jti` identifica esta sesión concreta (para poder revocarla); `exp`, cuándo expira;
+ *  `emitidoEn`, cuándo se emitió (para el cierre de sesión en todos los dispositivos). */
 export interface CredencialDTO {
   id: string
   jti: string
   exp: Date
+  emitidoEn: Date
 }
 
 export interface ServicioTokens {
@@ -82,4 +84,8 @@ export interface ServicioTokens {
 export interface SesionesDAO {
   revocar(jti: string, expiraEn: Date): Promise<void>
   estaRevocada(jti: string): Promise<boolean>
+  /** Revoca de una vez todas las sesiones del usuario emitidas hasta `desde`. */
+  cerrarTodasDelUsuario(usuarioId: string, desde: Date): Promise<void>
+  /** Fecha del último "cerrar sesión en todos los dispositivos" del usuario, si lo hubo. */
+  cierreGlobalDe(usuarioId: string): Promise<Date | null>
 }

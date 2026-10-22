@@ -29,6 +29,15 @@ export function requiereSesion(tokens: ServicioTokens, sesiones: SesionesDAO): R
       return
     }
 
+    // "Cerrar sesión en todos los dispositivos" no conoce cada jti: invalida por fecha
+    // todo token del usuario emitido en o antes de ese momento. El `iat` del JWT tiene
+    // precisión de segundos, así que un login hecho en ese mismo segundo también cae.
+    const cierreGlobal = await sesiones.cierreGlobalDe(credencial.id)
+    if (cierreGlobal && credencial.emitidoEn.getTime() <= cierreGlobal.getTime()) {
+      res.status(401).json({ error: 'La sesión fue cerrada, inicia sesión de nuevo' })
+      return
+    }
+
     req.usuarioId = credencial.id
     req.sesionJti = credencial.jti
     req.sesionExpiraEn = credencial.exp

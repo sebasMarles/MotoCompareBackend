@@ -5,6 +5,7 @@ import type { RegistrarUsuario } from '../../../aplicacion/casos-uso/RegistrarUs
 import { CredencialesInvalidas } from '../../../aplicacion/casos-uso/IniciarSesion'
 import type { IniciarSesion } from '../../../aplicacion/casos-uso/IniciarSesion'
 import type { CerrarSesion } from '../../../aplicacion/casos-uso/CerrarSesion'
+import type { CerrarSesionEnTodosLosDispositivos } from '../../../aplicacion/casos-uso/CerrarSesionEnTodosLosDispositivos'
 import { aUsuarioDTO } from '../../../dominio/modelo/Usuario'
 import type { SesionesDAO, ServicioTokens, UsuarioDAO } from '../../../dominio/puertos'
 import { requiereSesion } from '../middleware/autenticacion'
@@ -17,6 +18,7 @@ export interface DependenciasAutenticacion {
   registrarUsuario: RegistrarUsuario
   iniciarSesion: IniciarSesion
   cerrarSesion: CerrarSesion
+  cerrarSesionEnTodos: CerrarSesionEnTodosLosDispositivos
 }
 
 export function rutasAutenticacion(deps: DependenciasAutenticacion): Router {
@@ -191,6 +193,29 @@ export function rutasAutenticacion(deps: DependenciasAutenticacion): Router {
    */
   router.post('/logout', requiereSesion(deps.tokens, deps.sesiones), async (req: Request, res: Response) => {
     await deps.cerrarSesion.ejecutar(req.sesionJti!, req.sesionExpiraEn!)
+    res.status(204).send()
+  })
+
+  /**
+   * @openapi
+   * /api/auth/logout-todos:
+   *   post:
+   *     tags: [Autenticación]
+   *     summary: Cierra la sesión en todos los dispositivos (revoca todos los tokens del usuario)
+   *     security:
+   *       - bearerAuth: []
+   *     responses:
+   *       204:
+   *         description: Todas las sesiones del usuario quedaron cerradas, incluida la actual
+   *       401:
+   *         description: Se requiere iniciar sesión
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Error'
+   */
+  router.post('/logout-todos', requiereSesion(deps.tokens, deps.sesiones), async (req: Request, res: Response) => {
+    await deps.cerrarSesionEnTodos.ejecutar(req.usuarioId!)
     res.status(204).send()
   })
 

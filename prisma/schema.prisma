@@ -15,6 +15,8 @@ model Usuario {
   activo    Boolean        @default(true)
   creadoEn  DateTime       @default(now())
   garage    MotoGuardada[]
+
+  cierreGlobalSesion CierreGlobalSesion?
 }
 
 model Moto {
@@ -119,4 +121,12 @@ model SesionRevocada {
   jti        String   @id
   expiraEn   DateTime
   revocadaEn DateTime @default(now())
+}
+
+// "Cerrar sesión en todos los dispositivos": todo token del usuario emitido en o
+// antes de `desde` se considera revocado, sin tener que conocer cada jti.
+model CierreGlobalSesion {
+  usuario   Usuario  @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  usuarioId String   @id
+  desde     DateTime
 }
