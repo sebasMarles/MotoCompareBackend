@@ -30,6 +30,14 @@ export interface FiltrosMoto {
   pagina?: number
   /** Orden del catálogo por precio o potencia, ascendente o descendente. */
   orden?: OrdenMoto
+  /** Precio mínimo (inclusive) del catálogo. */
+  precioMin?: number
+  /** Precio máximo (inclusive) del catálogo. */
+  precioMax?: number
+  /** Cilindrada mínima (inclusive), en cc. */
+  cilindradaMin?: number
+  /** Cilindrada máxima (inclusive), en cc. */
+  cilindradaMax?: number
 }
 
 export interface MotoDAO {

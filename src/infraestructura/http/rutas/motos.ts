@@ -49,6 +49,22 @@ export function rutasMotos(deps: DependenciasMotos): Router {
    *         name: orden
    *         description: Orden del catálogo.
    *         schema: { type: string, enum: [precio_asc, precio_desc, potencia_asc, potencia_desc] }
+   *       - in: query
+   *         name: precioMin
+   *         description: Precio mínimo (inclusive).
+   *         schema: { type: number, minimum: 0 }
+   *       - in: query
+   *         name: precioMax
+   *         description: Precio máximo (inclusive).
+   *         schema: { type: number, minimum: 0 }
+   *       - in: query
+   *         name: cilindradaMin
+   *         description: Cilindrada mínima en cc (inclusive).
+   *         schema: { type: number, minimum: 0 }
+   *       - in: query
+   *         name: cilindradaMax
+   *         description: Cilindrada máxima en cc (inclusive).
+   *         schema: { type: number, minimum: 0 }
    *     responses:
    *       200:
    *         description: Lista de motos
@@ -59,8 +75,19 @@ export function rutasMotos(deps: DependenciasMotos): Router {
    *               items: { $ref: '#/components/schemas/Moto' }
    */
   router.get('/', async (req: Request, res: Response) => {
-    const { marca, categoria, busqueda, limite, pagina, orden } = req.query
-    const filtros: { marca?: string; categoria?: string; busqueda?: string; limite?: number; pagina?: number; orden?: OrdenMoto } = {}
+    const { marca, categoria, busqueda, limite, pagina, orden, precioMin, precioMax, cilindradaMin, cilindradaMax } = req.query
+    const filtros: {
+      marca?: string
+      categoria?: string
+      busqueda?: string
+      limite?: number
+      pagina?: number
+      orden?: OrdenMoto
+      precioMin?: number
+      precioMax?: number
+      cilindradaMin?: number
+      cilindradaMax?: number
+    } = {}
     if (typeof marca === 'string') filtros.marca = marca
     if (typeof categoria === 'string') filtros.categoria = categoria
     if (typeof busqueda === 'string' && busqueda.trim() !== '') filtros.busqueda = busqueda.trim()
@@ -70,6 +97,55 @@ export function rutasMotos(deps: DependenciasMotos): Router {
         return
       }
       filtros.orden = orden
+    }
+
+    const parametroNumericoNoNegativo = (valor: unknown, nombre: string): number | undefined | 'invalido' => {
+      if (valor === undefined) return undefined
+      if (typeof valor !== 'string') return 'invalido'
+      const numero = Number(valor)
+      if (!Number.isFinite(numero) || numero < 0) return 'invalido'
+      return numero
+    }
+
+    const precioMinNumero = parametroNumericoNoNegativo(precioMin, 'precioMin')
+    if (precioMinNumero === 'invalido') {
+      res.status(400).json({ error: 'precioMin debe ser un número mayor o igual a 0' })
+      return
+    }
+    if (precioMinNumero !== undefined) filtros.precioMin = precioMinNumero
+
+    const precioMaxNumero = parametroNumericoNoNegativo(precioMax, 'precioMax')
+    if (precioMaxNumero === 'invalido') {
+      res.status(400).json({ error: 'precioMax debe ser un número mayor o igual a 0' })
+      return
+    }
+    if (precioMaxNumero !== undefined) filtros.precioMax = precioMaxNumero
+
+    const cilindradaMinNumero = parametroNumericoNoNegativo(cilindradaMin, 'cilindradaMin')
+    if (cilindradaMinNumero === 'invalido') {
+      res.status(400).json({ error: 'cilindradaMin debe ser un número mayor o igual a 0' })
+      return
+    }
+    if (cilindradaMinNumero !== undefined) filtros.cilindradaMin = cilindradaMinNumero
+
+    const cilindradaMaxNumero = parametroNumericoNoNegativo(cilindradaMax, 'cilindradaMax')
+    if (cilindradaMaxNumero === 'invalido') {
+      res.status(400).json({ error: 'cilindradaMax debe ser un número mayor o igual a 0' })
+      return
+    }
+    if (cilindradaMaxNumero !== undefined) filtros.cilindradaMax = cilindradaMaxNumero
+
+    if (filtros.precioMin !== undefined && filtros.precioMax !== undefined && filtros.precioMin > filtros.precioMax) {
+      res.status(400).json({ error: 'precioMin no puede ser mayor que precioMax' })
+      return
+    }
+    if (
+      filtros.cilindradaMin !== undefined &&
+      filtros.cilindradaMax !== undefined &&
+      filtros.cilindradaMin > filtros.cilindradaMax
+    ) {
+      res.status(400).json({ error: 'cilindradaMin no puede ser mayor que cilindradaMax' })
+      return
     }
 
     if (typeof limite === 'string') {

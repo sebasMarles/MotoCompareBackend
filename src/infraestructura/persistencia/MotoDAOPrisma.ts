@@ -31,6 +31,8 @@ export class MotoDAOPrisma implements MotoDAO {
     const where: {
       marca?: string;
       categoria?: string;
+      precio?: { gte?: number; lte?: number };
+      cilindrada?: { gte?: number; lte?: number };
       OR?: Array<
         { marca: { contains: string; mode: "insensitive" } } | { modelo: { contains: string; mode: "insensitive" } }
       >;
@@ -42,6 +44,18 @@ export class MotoDAOPrisma implements MotoDAO {
         { marca: { contains: filtros.busqueda, mode: "insensitive" } },
         { modelo: { contains: filtros.busqueda, mode: "insensitive" } },
       ];
+    }
+    if (filtros.precioMin !== undefined || filtros.precioMax !== undefined) {
+      where.precio = {
+        ...(filtros.precioMin !== undefined ? { gte: filtros.precioMin } : {}),
+        ...(filtros.precioMax !== undefined ? { lte: filtros.precioMax } : {}),
+      };
+    }
+    if (filtros.cilindradaMin !== undefined || filtros.cilindradaMax !== undefined) {
+      where.cilindrada = {
+        ...(filtros.cilindradaMin !== undefined ? { gte: filtros.cilindradaMin } : {}),
+        ...(filtros.cilindradaMax !== undefined ? { lte: filtros.cilindradaMax } : {}),
+      };
     }
 
     const limite = filtros.limite;
