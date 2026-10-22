@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto'
 import type { ErrorRequestHandler, RequestHandler } from 'express'
 import { MotoNoEncontrada } from '../../aplicacion/casos-uso/ObtenerMotoPorId'
 import { GarageNoEncontrado } from '../../aplicacion/casos-uso/soporte-garage'
@@ -25,10 +26,29 @@ function estadoDeErrorConocido(error: unknown): number | undefined {
   return ESTADO_POR_ERROR.find(([clase]) => error instanceof clase)?.[1]
 }
 
-// express.json() lanza un error con `type: 'entity.parse.failed'` cuando el cuerpo
-// no es un JSON válido; sin esto, un JSON mal formado terminaba en un 500.
-function esCuerpoInvalido(error: unknown): boolean {
-  return typeof error === 'object' && error !== null && (error as { type?: unknown }).type === 'entity.parse.failed'
+// En producción nunca se devuelve el mensaje interno de un error inesperado
+// (puede revelar consultas, rutas de archivos o detalles de la base de datos).
+function enProduccion(): boolean {
+  return process.env['NODE_ENV'] === 'production'
+}
+
+// Errores que lanza express.json() (cuerpo mal formado, demasiado grande, etc.).
+// Traen un `status` 4xx y un `type`; su mensaje original se descarta porque puede
+// incluir fragmentos del cuerpo recibido o detalles del parser.
+interface ErrorDeCuerpo {
+  status: number
+  type: string
+}
+
+function esErrorDeCuerpo(error: unknown): error is ErrorDeCuerpo {
+  if (typeof error !== 'object' || error === null) return false
+  const { status, type } = error as { status?: unknown; type?: unknown }
+  return typeof status === 'number' && status >= 400 && status < 500 && typeof type === 'string'
+}
+
+const MENSAJE_POR_TIPO_DE_CUERPO: Readonly<Record<string, string>> = {
+  'entity.parse.failed': 'El cuerpo de la petición no es un JSON válido',
+  'entity.too.large': 'El cuerpo de la petición es demasiado grande',
 }
 
 export const rutaNoEncontrada: RequestHandler = (_req, res) => {
@@ -47,11 +67,18 @@ export const manejarErrores: ErrorRequestHandler = (error, _req, res, next) => {
     return
   }
 
-  if (esCuerpoInvalido(error)) {
-    res.status(400).json({ error: 'El cuerpo de la petición no es un JSON válido' })
+  if (esErrorDeCuerpo(error)) {
+    res.status(error.status).json({ error: MENSAJE_POR_TIPO_DE_CUERPO[error.type] ?? 'La petición no es válida' })
     return
   }
 
-  console.error(error)
-  res.status(500).json({ error: 'Error interno' })
+  // Error inesperado: el detalle completo queda solo en el log del servidor, junto
+  // con una referencia que el cliente sí recibe para poder reportar el problema.
+  const referencia = randomUUID()
+  console.error(`[error ${referencia}]`, error)
+  res.status(500).json({
+    error: 'Error interno',
+    referencia,
+    ...(enProduccion() ? {} : { detalle: error instanceof Error ? error.message : String(error) }),
+  })
 }
