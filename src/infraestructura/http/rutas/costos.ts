@@ -1,10 +1,8 @@
 import { Router } from 'express'
 import type { Request, Response } from 'express'
 import { esCategoriaCosto } from '../../../dominio/modelo/CostoMensual'
-import { GarageNoEncontrado } from '../../../aplicacion/casos-uso/soporte-garage'
 import type { ConfigurarCostoMensual } from '../../../aplicacion/casos-uso/ConfigurarCostoMensual'
 import type { ListarCostosMensuales } from '../../../aplicacion/casos-uso/ListarCostosMensuales'
-import { CostoNoEncontrado } from '../../../aplicacion/casos-uso/EliminarCostoMensual'
 import type { EliminarCostoMensual } from '../../../aplicacion/casos-uso/EliminarCostoMensual'
 import type { ServicioTokens, SesionesDAO } from '../../../dominio/puertos'
 import { requiereSesion } from '../middleware/autenticacion'
@@ -48,15 +46,7 @@ export function rutasCostos(deps: DependenciasCostos): Router {
    *             schema: { $ref: '#/components/schemas/Error' }
    */
   router.get('/', async (req: Request, res: Response) => {
-    try {
-      res.json(await deps.listarCostosMensuales.ejecutar(req.usuarioId!, req.params.motoGuardadaId as string))
-    } catch (error) {
-      if (error instanceof GarageNoEncontrado) {
-        res.status(404).json({ error: error.message })
-        return
-      }
-      throw error
-    }
+    res.json(await deps.listarCostosMensuales.ejecutar(req.usuarioId!, req.params.motoGuardadaId as string))
   })
 
   /**
@@ -100,21 +90,13 @@ export function rutasCostos(deps: DependenciasCostos): Router {
       res.status(400).json({ error: 'categoria y monto son obligatorios y deben tener el formato correcto' })
       return
     }
-    try {
-      const costo = await deps.configurarCostoMensual.ejecutar(req.usuarioId!, {
-        motoGuardadaId: req.params.motoGuardadaId as string,
-        categoria,
-        monto,
-        descripcion,
-      })
-      res.status(201).json(costo)
-    } catch (error) {
-      if (error instanceof GarageNoEncontrado) {
-        res.status(404).json({ error: error.message })
-        return
-      }
-      throw error
-    }
+    const costo = await deps.configurarCostoMensual.ejecutar(req.usuarioId!, {
+      motoGuardadaId: req.params.motoGuardadaId as string,
+      categoria,
+      monto,
+      descripcion,
+    })
+    res.status(201).json(costo)
   })
 
   /**
@@ -144,16 +126,8 @@ export function rutasCostos(deps: DependenciasCostos): Router {
    *             schema: { $ref: '#/components/schemas/Error' }
    */
   router.delete('/:costoId', async (req: Request, res: Response) => {
-    try {
-      await deps.eliminarCostoMensual.ejecutar(req.usuarioId!, req.params.motoGuardadaId as string, req.params.costoId as string)
-      res.status(204).send()
-    } catch (error) {
-      if (error instanceof GarageNoEncontrado || error instanceof CostoNoEncontrado) {
-        res.status(404).json({ error: error.message })
-        return
-      }
-      throw error
-    }
+    await deps.eliminarCostoMensual.ejecutar(req.usuarioId!, req.params.motoGuardadaId as string, req.params.costoId as string)
+    res.status(204).send()
   })
 
   return router
