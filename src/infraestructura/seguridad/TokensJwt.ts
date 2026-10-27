@@ -16,8 +16,13 @@ export class TokensJwt implements ServicioTokens {
   verificar(token: string): CredencialDTO | null {
     try {
       const carga = jwt.verify(token, this.secreto)
-      if (typeof carga === 'string' || !carga.sub || typeof carga['jti'] !== 'string' || !carga.exp) return null
-      return { id: carga.sub, jti: carga['jti'], exp: new Date(carga.exp * 1000) }
+      if (typeof carga === 'string' || !carga.sub || typeof carga['jti'] !== 'string' || !carga.exp || !carga.iat) return null
+      return {
+        id: carga.sub,
+        jti: carga['jti'],
+        exp: new Date(carga.exp * 1000),
+        emitidoEn: new Date(carga.iat * 1000),
+      }
     } catch {
       return null
     }
