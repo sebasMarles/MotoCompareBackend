@@ -1,7 +1,5 @@
 import { Router } from 'express'
 import type { Request, Response } from 'express'
-import { MotoNoEncontrada } from '../../../aplicacion/casos-uso/ObtenerMotoPorId'
-import { GarageNoEncontrado } from '../../../aplicacion/casos-uso/soporte-garage'
 import type { AgregarMotoAlGarage } from '../../../aplicacion/casos-uso/AgregarMotoAlGarage'
 import type { ListarGarage } from '../../../aplicacion/casos-uso/ListarGarage'
 import type { ActualizarKilometraje } from '../../../aplicacion/casos-uso/ActualizarKilometraje'
@@ -84,16 +82,8 @@ export function rutasGarage(deps: DependenciasGarage): Router {
       res.status(400).json({ error: 'motoId es obligatorio' })
       return
     }
-    try {
-      const guardada = await deps.agregarMotoAlGarage.ejecutar({ usuarioId: req.usuarioId!, motoId, apodo })
-      res.status(201).json(guardada)
-    } catch (error) {
-      if (error instanceof MotoNoEncontrada) {
-        res.status(404).json({ error: error.message })
-        return
-      }
-      throw error
-    }
+    const guardada = await deps.agregarMotoAlGarage.ejecutar({ usuarioId: req.usuarioId!, motoId, apodo })
+    res.status(201).json(guardada)
   })
 
   /**
@@ -121,7 +111,7 @@ export function rutasGarage(deps: DependenciasGarage): Router {
    *           application/json:
    *             schema: { $ref: '#/components/schemas/MotoGuardada' }
    *       400:
-   *         description: kilometrajeActual debe ser un número
+   *         description: kilometrajeActual debe ser un número, o es menor al ya registrado
    *         content:
    *           application/json:
    *             schema: { $ref: '#/components/schemas/Error' }
@@ -137,16 +127,8 @@ export function rutasGarage(deps: DependenciasGarage): Router {
       res.status(400).json({ error: 'kilometrajeActual debe ser un número' })
       return
     }
-    try {
-      const guardada = await deps.actualizarKilometraje.ejecutar(req.usuarioId!, req.params.id, kilometrajeActual)
-      res.json(guardada)
-    } catch (error) {
-      if (error instanceof GarageNoEncontrado) {
-        res.status(404).json({ error: error.message })
-        return
-      }
-      throw error
-    }
+    const guardada = await deps.actualizarKilometraje.ejecutar(req.usuarioId!, req.params.id as string, kilometrajeActual)
+    res.json(guardada)
   })
 
   /**
@@ -172,16 +154,8 @@ export function rutasGarage(deps: DependenciasGarage): Router {
    *             schema: { $ref: '#/components/schemas/Error' }
    */
   router.delete('/:id', async (req: Request, res: Response) => {
-    try {
-      await deps.eliminarMotoDelGarage.ejecutar(req.usuarioId!, req.params.id)
-      res.status(204).send()
-    } catch (error) {
-      if (error instanceof GarageNoEncontrado) {
-        res.status(404).json({ error: error.message })
-        return
-      }
-      throw error
-    }
+    await deps.eliminarMotoDelGarage.ejecutar(req.usuarioId!, req.params.id as string)
+    res.status(204).send()
   })
 
   return router

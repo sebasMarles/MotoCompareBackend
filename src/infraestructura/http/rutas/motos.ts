@@ -1,9 +1,14 @@
 import { Router } from 'express'
 import type { Request, Response } from 'express'
-import { MotoNoEncontrada } from '../../../aplicacion/casos-uso/ObtenerMotoPorId'
 import type { ListarMotos } from '../../../aplicacion/casos-uso/ListarMotos'
 import type { ObtenerMotoPorId } from '../../../aplicacion/casos-uso/ObtenerMotoPorId'
 import type { ListarComparacionesRecomendadas } from '../../../aplicacion/casos-uso/ListarComparacionesRecomendadas'
+import type { OrdenMoto } from '../../../dominio/puertos'
+
+const ORDENES_VALIDOS: OrdenMoto[] = ['precio_asc', 'precio_desc', 'potencia_asc', 'potencia_desc']
+function esOrdenValido(valor: unknown): valor is OrdenMoto {
+  return typeof valor === 'string' && (ORDENES_VALIDOS as string[]).includes(valor)
+}
 
 export interface DependenciasMotos {
   listarMotos: ListarMotos
@@ -27,6 +32,22 @@ export function rutasMotos(deps: DependenciasMotos): Router {
    *       - in: query
    *         name: categoria
    *         schema: { type: string }
+   *       - in: query
+   *         name: busqueda
+   *         description: Texto libre; filtra motos cuya marca o modelo lo contengan.
+   *         schema: { type: string }
+   *       - in: query
+   *         name: limite
+   *         description: Cantidad máxima de motos a devolver (paginación). Entre 1 y 100.
+   *         schema: { type: integer, minimum: 1, maximum: 100 }
+   *       - in: query
+   *         name: pagina
+   *         description: Número de página (empieza en 1). Solo aplica si se envía `limite`.
+   *         schema: { type: integer, minimum: 1 }
+   *       - in: query
+   *         name: orden
+   *         description: Orden del catálogo.
+   *         schema: { type: string, enum: [precio_asc, precio_desc, potencia_asc, potencia_desc] }
    *     responses:
    *       200:
    *         description: Lista de motos
@@ -37,11 +58,37 @@ export function rutasMotos(deps: DependenciasMotos): Router {
    *               items: { $ref: '#/components/schemas/Moto' }
    */
   router.get('/', async (req: Request, res: Response) => {
-    const { marca, categoria } = req.query
-    const motos = await deps.listarMotos.ejecutar({
-      marca: typeof marca === 'string' ? marca : undefined,
-      categoria: typeof categoria === 'string' ? categoria : undefined,
-    })
+    const { marca, categoria, busqueda, limite, pagina, orden } = req.query
+    const filtros: { marca?: string; categoria?: string; busqueda?: string; limite?: number; pagina?: number; orden?: OrdenMoto } = {}
+    if (typeof marca === 'string') filtros.marca = marca
+    if (typeof categoria === 'string') filtros.categoria = categoria
+    if (typeof busqueda === 'string' && busqueda.trim() !== '') filtros.busqueda = busqueda.trim()
+    if (orden !== undefined) {
+      if (!esOrdenValido(orden)) {
+        res.status(400).json({ error: 'orden debe ser uno de: ' + ORDENES_VALIDOS.join(', ') })
+        return
+      }
+      filtros.orden = orden
+    }
+
+    if (typeof limite === 'string') {
+      const limiteNumero = Number(limite)
+      if (!Number.isInteger(limiteNumero) || limiteNumero < 1 || limiteNumero > 100) {
+        res.status(400).json({ error: 'limite debe ser un entero entre 1 y 100' })
+        return
+      }
+      filtros.limite = limiteNumero
+    }
+    if (typeof pagina === 'string') {
+      const paginaNumero = Number(pagina)
+      if (!Number.isInteger(paginaNumero) || paginaNumero < 1) {
+        res.status(400).json({ error: 'pagina debe ser un entero mayor o igual a 1' })
+        return
+      }
+      filtros.pagina = paginaNumero
+    }
+
+    const motos = await deps.listarMotos.ejecutar(filtros)
     res.json(motos)
   })
 
@@ -89,15 +136,7 @@ export function rutasMotos(deps: DependenciasMotos): Router {
    *             schema: { $ref: '#/components/schemas/Error' }
    */
   router.get('/:id', async (req: Request, res: Response) => {
-    try {
-      res.json(await deps.obtenerMotoPorId.ejecutar(req.params.id))
-    } catch (error) {
-      if (error instanceof MotoNoEncontrada) {
-        res.status(404).json({ error: error.message })
-        return
-      }
-      throw error
-    }
+    res.json(await deps.obtenerMotoPorId.ejecutar(req.params.id as string))
   })
 
   return router
