@@ -1,7 +1,6 @@
 import { Router } from 'express'
 import type { Request, Response } from 'express'
 import { esTipoMantenimiento } from '../../../dominio/modelo/RegistroMantenimiento'
-import { GarageNoEncontrado } from '../../../aplicacion/casos-uso/soporte-garage'
 import type { RegistrarMantenimiento } from '../../../aplicacion/casos-uso/RegistrarMantenimiento'
 import type { ListarMantenimientos } from '../../../aplicacion/casos-uso/ListarMantenimientos'
 import type { ServicioTokens, SesionesDAO } from '../../../dominio/puertos'
@@ -48,15 +47,7 @@ export function rutasMantenimiento(deps: DependenciasMantenimiento): Router {
    *             schema: { $ref: '#/components/schemas/Error' }
    */
   router.get('/', async (req: Request, res: Response) => {
-    try {
-      res.json(await deps.listarMantenimientos.ejecutar(req.usuarioId!, req.params.motoGuardadaId))
-    } catch (error) {
-      if (error instanceof GarageNoEncontrado) {
-        res.status(404).json({ error: error.message })
-        return
-      }
-      throw error
-    }
+    res.json(await deps.listarMantenimientos.ejecutar(req.usuarioId!, req.params.motoGuardadaId as string))
   })
 
   /**
@@ -100,23 +91,15 @@ export function rutasMantenimiento(deps: DependenciasMantenimiento): Router {
       res.status(400).json({ error: 'tipo, kilometraje y costo son obligatorios y deben tener el formato correcto' })
       return
     }
-    try {
-      const registro = await deps.registrarMantenimiento.ejecutar(req.usuarioId!, {
-        motoGuardadaId: req.params.motoGuardadaId,
-        tipo,
-        fecha: fecha ? new Date(fecha) : new Date(),
-        kilometraje,
-        costo,
-        notas,
-      })
-      res.status(201).json(registro)
-    } catch (error) {
-      if (error instanceof GarageNoEncontrado) {
-        res.status(404).json({ error: error.message })
-        return
-      }
-      throw error
-    }
+    const registro = await deps.registrarMantenimiento.ejecutar(req.usuarioId!, {
+      motoGuardadaId: req.params.motoGuardadaId as string,
+      tipo,
+      fecha: fecha ? new Date(fecha) : new Date(),
+      kilometraje,
+      costo,
+      notas,
+    })
+    res.status(201).json(registro)
   })
 
   return router
