@@ -2,7 +2,7 @@ import cors from 'cors'
 import express, { Router } from 'express'
 import type { Express } from 'express'
 import swaggerUi from 'swagger-ui-express'
-import { swaggerSpec } from './swagger'
+import { swaggerSpec, swaggerUiOptions } from './swagger'
 import { manejarErrores, rutaNoEncontrada } from './errores'
 import { rutasAutenticacion } from './rutas/autenticacion'
 import type { DependenciasAutenticacion } from './rutas/autenticacion'
@@ -77,7 +77,7 @@ export function crearServidor(deps: DependenciasServidor): Express {
   app.use('/api', api)
   // Documentación interactiva de la API (Swagger UI), armada a partir de los
   // comentarios @openapi en infraestructura/http/rutas/*.ts.
-  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
+  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, swaggerUiOptions))
   app.use(rutaNoEncontrada)
   app.use(manejarErrores)
   return app
