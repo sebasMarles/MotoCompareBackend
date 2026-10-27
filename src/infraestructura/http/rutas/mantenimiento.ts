@@ -5,6 +5,7 @@ import type { RegistrarMantenimiento } from '../../../aplicacion/casos-uso/Regis
 import type { ListarMantenimientos } from '../../../aplicacion/casos-uso/ListarMantenimientos'
 import type { ServicioTokens, SesionesDAO } from '../../../dominio/puertos'
 import { requiereSesion } from '../middleware/autenticacion'
+import { esSeparadorCsv, mantenimientosACsv } from '../csv'
 
 export interface DependenciasMantenimiento {
   tokens: ServicioTokens
@@ -48,6 +49,53 @@ export function rutasMantenimiento(deps: DependenciasMantenimiento): Router {
    */
   router.get('/', async (req: Request, res: Response) => {
     res.json(await deps.listarMantenimientos.ejecutar(req.usuarioId!, req.params.motoGuardadaId as string))
+  })
+
+  /**
+   * @openapi
+   * /api/garage/{motoGuardadaId}/mantenimientos/exportar:
+   *   get:
+   *     tags: [Mantenimiento]
+   *     summary: Descarga el historial de mantenimiento de una moto guardada en CSV
+   *     description: Columnas fecha, tipo, kilometraje, costo y notas, del mantenimiento más antiguo al más reciente.
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: motoGuardadaId
+   *         required: true
+   *         schema: { type: string }
+   *       - in: query
+   *         name: separador
+   *         description: Separador de columnas. Usa `;` si Excel en español muestra todo en una sola columna.
+   *         schema: { type: string, enum: [',', ';'], default: ',' }
+   *     responses:
+   *       200:
+   *         description: Archivo CSV para descargar
+   *         content:
+   *           text/csv:
+   *             schema: { type: string }
+   *       400:
+   *         description: El separador no es válido
+   *         content:
+   *           application/json:
+   *             schema: { $ref: '#/components/schemas/Error' }
+   *       404:
+   *         description: No existe esa moto guardada para este usuario
+   *         content:
+   *           application/json:
+   *             schema: { $ref: '#/components/schemas/Error' }
+   */
+  router.get('/exportar', async (req: Request, res: Response) => {
+    const separador = req.query['separador'] ?? ','
+    if (!esSeparadorCsv(separador)) {
+      res.status(400).json({ error: 'separador debe ser "," o ";"' })
+      return
+    }
+    const motoGuardadaId = req.params.motoGuardadaId as string
+    const registros = await deps.listarMantenimientos.ejecutar(req.usuarioId!, motoGuardadaId)
+    res.attachment(`historial-mantenimiento-${motoGuardadaId}.csv`)
+    res.send(mantenimientosACsv(registros, separador))
   })
 
   /**
