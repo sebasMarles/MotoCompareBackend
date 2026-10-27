@@ -49,6 +49,22 @@ export function rutasMotos(deps: DependenciasMotos): Router {
    *         name: orden
    *         description: Orden del catálogo.
    *         schema: { type: string, enum: [precio_asc, precio_desc, potencia_asc, potencia_desc] }
+   *       - in: query
+   *         name: precioMin
+   *         description: Precio mínimo (inclusive).
+   *         schema: { type: number, minimum: 0 }
+   *       - in: query
+   *         name: precioMax
+   *         description: Precio máximo (inclusive).
+   *         schema: { type: number, minimum: 0 }
+   *       - in: query
+   *         name: cilindradaMin
+   *         description: Cilindrada mínima en cc (inclusive).
+   *         schema: { type: number, minimum: 0 }
+   *       - in: query
+   *         name: cilindradaMax
+   *         description: Cilindrada máxima en cc (inclusive).
+   *         schema: { type: number, minimum: 0 }
    *     responses:
    *       200:
    *         description: Lista de motos
@@ -60,7 +76,18 @@ export function rutasMotos(deps: DependenciasMotos): Router {
    */
   router.get('/', async (req: Request, res: Response) => {
     const { marca, categoria, busqueda, limite, pagina, orden } = req.query
-    const filtros: { marca?: string; categoria?: string; busqueda?: string; limite?: number; pagina?: number; orden?: OrdenMoto } = {}
+    const filtros: {
+      marca?: string
+      categoria?: string
+      busqueda?: string
+      limite?: number
+      pagina?: number
+      orden?: OrdenMoto
+      precioMin?: number
+      precioMax?: number
+      cilindradaMin?: number
+      cilindradaMax?: number
+    } = {}
     if (typeof marca === 'string') filtros.marca = marca
     if (typeof categoria === 'string') filtros.categoria = categoria
     if (typeof busqueda === 'string' && busqueda.trim() !== '') filtros.busqueda = busqueda.trim()
@@ -70,6 +97,31 @@ export function rutasMotos(deps: DependenciasMotos): Router {
         return
       }
       filtros.orden = orden
+    }
+
+    // Filtros de rango: deben ser números >= 0; un parámetro vacío se ignora.
+    for (const nombre of ['precioMin', 'precioMax', 'cilindradaMin', 'cilindradaMax'] as const) {
+      const valor = req.query[nombre]
+      if (valor === undefined || valor === '') continue
+      const numero = typeof valor === 'string' ? Number(valor) : Number.NaN
+      if (!Number.isFinite(numero) || numero < 0) {
+        res.status(400).json({ error: `${nombre} debe ser un número mayor o igual a 0` })
+        return
+      }
+      filtros[nombre] = numero
+    }
+
+    if (filtros.precioMin !== undefined && filtros.precioMax !== undefined && filtros.precioMin > filtros.precioMax) {
+      res.status(400).json({ error: 'precioMin no puede ser mayor que precioMax' })
+      return
+    }
+    if (
+      filtros.cilindradaMin !== undefined &&
+      filtros.cilindradaMax !== undefined &&
+      filtros.cilindradaMin > filtros.cilindradaMax
+    ) {
+      res.status(400).json({ error: 'cilindradaMin no puede ser mayor que cilindradaMax' })
+      return
     }
 
     if (typeof limite === 'string') {
