@@ -75,7 +75,7 @@ export function rutasMotos(deps: DependenciasMotos): Router {
    *               items: { $ref: '#/components/schemas/Moto' }
    */
   router.get('/', async (req: Request, res: Response) => {
-    const { marca, categoria, busqueda, limite, pagina, orden, precioMin, precioMax, cilindradaMin, cilindradaMax } = req.query
+    const { marca, categoria, busqueda, limite, pagina, orden } = req.query
     const filtros: {
       marca?: string
       categoria?: string
@@ -99,41 +99,17 @@ export function rutasMotos(deps: DependenciasMotos): Router {
       filtros.orden = orden
     }
 
-    const parametroNumericoNoNegativo = (valor: unknown, nombre: string): number | undefined | 'invalido' => {
-      if (valor === undefined) return undefined
-      if (typeof valor !== 'string') return 'invalido'
-      const numero = Number(valor)
-      if (!Number.isFinite(numero) || numero < 0) return 'invalido'
-      return numero
+    // Filtros de rango: deben ser números >= 0; un parámetro vacío se ignora.
+    for (const nombre of ['precioMin', 'precioMax', 'cilindradaMin', 'cilindradaMax'] as const) {
+      const valor = req.query[nombre]
+      if (valor === undefined || valor === '') continue
+      const numero = typeof valor === 'string' ? Number(valor) : Number.NaN
+      if (!Number.isFinite(numero) || numero < 0) {
+        res.status(400).json({ error: `${nombre} debe ser un número mayor o igual a 0` })
+        return
+      }
+      filtros[nombre] = numero
     }
-
-    const precioMinNumero = parametroNumericoNoNegativo(precioMin, 'precioMin')
-    if (precioMinNumero === 'invalido') {
-      res.status(400).json({ error: 'precioMin debe ser un número mayor o igual a 0' })
-      return
-    }
-    if (precioMinNumero !== undefined) filtros.precioMin = precioMinNumero
-
-    const precioMaxNumero = parametroNumericoNoNegativo(precioMax, 'precioMax')
-    if (precioMaxNumero === 'invalido') {
-      res.status(400).json({ error: 'precioMax debe ser un número mayor o igual a 0' })
-      return
-    }
-    if (precioMaxNumero !== undefined) filtros.precioMax = precioMaxNumero
-
-    const cilindradaMinNumero = parametroNumericoNoNegativo(cilindradaMin, 'cilindradaMin')
-    if (cilindradaMinNumero === 'invalido') {
-      res.status(400).json({ error: 'cilindradaMin debe ser un número mayor o igual a 0' })
-      return
-    }
-    if (cilindradaMinNumero !== undefined) filtros.cilindradaMin = cilindradaMinNumero
-
-    const cilindradaMaxNumero = parametroNumericoNoNegativo(cilindradaMax, 'cilindradaMax')
-    if (cilindradaMaxNumero === 'invalido') {
-      res.status(400).json({ error: 'cilindradaMax debe ser un número mayor o igual a 0' })
-      return
-    }
-    if (cilindradaMaxNumero !== undefined) filtros.cilindradaMax = cilindradaMaxNumero
 
     if (filtros.precioMin !== undefined && filtros.precioMax !== undefined && filtros.precioMin > filtros.precioMax) {
       res.status(400).json({ error: 'precioMin no puede ser mayor que precioMax' })
