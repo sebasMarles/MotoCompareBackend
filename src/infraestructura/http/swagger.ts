@@ -14,6 +14,15 @@ const definition = {
 Todas, salvo /salud, /auth/registro, /auth/login, /motos, /motos/comparaciones-recomendadas y /motos/{id}, requieren el header \`Authorization: Bearer <token>\` (botón "Authorize" arriba).`,
   },
   servers: [{ url: '/api', description: 'Servidor actual' }],
+  // Orden en que aparecen las secciones en Swagger UI (si no, sale en el orden en que se leen los archivos).
+  tags: [
+    { name: 'Sistema' },
+    { name: 'Autenticación' },
+    { name: 'Motos' },
+    { name: 'Garage' },
+    { name: 'Mantenimiento' },
+    { name: 'Costos' },
+  ],
   components: {
     securitySchemes: {
       bearerAuth: {
